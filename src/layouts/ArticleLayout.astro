@@ -1,0 +1,83 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import HandbookSidebar from '../components/HandbookSidebar.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import { withBase } from '../lib/url';
+
+interface Heading { depth: number; slug: string; text: string; }
+interface Props {
+  post: CollectionEntry<'posts'>;
+  headings: Heading[];
+  previous?: CollectionEntry<'posts'>;
+  next?: CollectionEntry<'posts'>;
+}
+const { post, headings, previous, next } = Astro.props;
+const locale = post.data.language === 'vi' ? 'vi-VN' : 'en-US';
+const date = post.data.pubDate.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' });
+const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
+const handbookPosts = post.data.section === 'Handbook'
+  ? await getCollection('posts', ({ data }) => !data.draft && data.section === 'Handbook')
+  : [];
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+const back = post.data.section === 'Algorithm' ? '/algorithms' : post.data.section === 'Blog' ? '/blog' : '/learn';
+const backLabel = post.data.section === 'Algorithm' ? 'Algorithms' : post.data.section === 'Blog' ? 'Blog' : 'AI Handbook';
+---
+<BaseLayout title={post.data.title} description={post.data.description}>
+  {post.data.section === 'Handbook' ? (
+    <div class="handbook-layout shell-wide article-handbook-layout">
+      <HandbookSidebar posts={handbookPosts} currentDomain={domainKey(post.data.domain)} currentPostId={post.id} />
+      <main class="doc-article">
+        <div class="breadcrumbs">
+          <a href={withBase('/learn')}>AI Handbook</a><span>›</span>
+          <a href={withBase(`/learn/${domainKey(post.data.domain)}`)}>{post.data.domain}</a><span>›</span>
+          <span>{post.data.title}</span>
+        </div>
+        <header class="doc-header">
+          <h1>{post.data.title}</h1>
+          <p class="doc-dek">{post.data.description}</p>
+          <div class="doc-meta"><span>{post.data.level}</span><span>{post.data.readingTime} min</span><span>{date}</span></div>
+          {post.data.prerequisites.length > 0 && (
+            <div class="doc-prereqs"><strong><span class="lang-en">Useful before this:</span><span class="lang-vi">Nên biết trước:</span></strong> {post.data.prerequisites.join(' · ')}</div>
+          )}
+        </header>
+        {toc.length > 2 && (
+          <nav class="inline-toc" aria-label="On this page">
+            <strong><span class="lang-en">On this page</span><span class="lang-vi">Trong bài này</span></strong>
+            {toc.filter(h => h.depth === 2).map(h => <a href={`#${h.slug}`}>{h.text}</a>)}
+          </nav>
+        )}
+        <div class="prose"><slot /></div>
+        {(previous || next) && (
+          <nav class="article-sequence" aria-label="Article sequence">
+            {previous ? <a href={withBase(`/articles/${previous.id}`)}><span>← <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span><strong>{previous.data.title}</strong></a> : <div></div>}
+            {next ? <a class="next" href={withBase(`/articles/${next.id}`)}><span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> →</span><strong>{next.data.title}</strong></a> : <div></div>}
+          </nav>
+        )}
+      </main>
+    </div>
+  ) : (
+    <article class="standalone-article shell-reading">
+      <div class="breadcrumbs"><a href={withBase(back)}>← {backLabel}</a></div>
+      <header class="doc-header">
+        <p class="section-label">{post.data.type}</p>
+        <h1>{post.data.title}</h1>
+        <p class="doc-dek">{post.data.description}</p>
+        <div class="doc-meta"><span>Pham Van Viet</span><span>{date}</span><span>{post.data.readingTime} min</span></div>
+      </header>
+      {toc.length > 2 && (
+        <nav class="inline-toc" aria-label="On this page">
+          <strong><span class="lang-en">On this page</span><span class="lang-vi">Trong bài này</span></strong>
+          {toc.filter(h => h.depth === 2).map(h => <a href={`#${h.slug}`}>{h.text}</a>)}
+        </nav>
+      )}
+      <div class="prose"><slot /></div>
+      {(previous || next) && (
+        <nav class="article-sequence" aria-label="Article sequence">
+          {previous ? <a href={withBase(`/articles/${previous.id}`)}><span>← <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span><strong>{previous.data.title}</strong></a> : <div></div>}
+          {next ? <a class="next" href={withBase(`/articles/${next.id}`)}><span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> →</span><strong>{next.data.title}</strong></a> : <div></div>}
+        </nav>
+      )}
+    </article>
+  )}
+</BaseLayout>

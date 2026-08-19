@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/url';
+---
+<BaseLayout title="Not found">
+  <section class="page-hero shell compact-hero">
+    <p class="eyebrow">404</p>
+    <h1><span class="lang-en">This page does not exist.</span><span class="lang-vi">Trang này không tồn tại.</span></h1>
+    <p><span class="lang-en">The page may have moved, or the article has not been written yet.</span><span class="lang-vi">Trang có thể đã được chuyển, hoặc bài viết này chưa được viết.</span></p>
+    <div class="hero-actions"><a class="button primary" href={withBase('/')}><span class="lang-en">Back home</span><span class="lang-vi">Về trang chủ</span><span>→</span></a></div>
+  </section>
+</BaseLayout>

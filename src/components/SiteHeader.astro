@@ -1,0 +1,175 @@
+---
+import { NAV, SITE } from '../config';
+import { withBase } from '../lib/url';
+const current = Astro.url.pathname;
+const isActive = (href: string) => href === '/' ? current === withBase('/') : current.startsWith(withBase(href));
+---
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href={withBase('/')} aria-label={`${SITE.name} home`}>
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>{SITE.name}</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary">
+      {NAV.map(item => (
+        <a class:list={['nav-link', { active: isActive(item.href) }]} href={withBase(item.href)}>
+          <span class="lang-en">{item.en}</span><span class="lang-vi">{item.vi}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <div class="language-switch" aria-label="Language">
+        <button type="button" data-set-language="en">EN</button>
+        <span>/</span>
+        <button type="button" data-set-language="vi">VI</button>
+      </div>
+      <button class="icon-button search-trigger" type="button" aria-label="Search">
+        <span class="lang-en">Search</span><span class="lang-vi">Tìm</span><kbd>⌘K</kbd>
+      </button>
+      <button class="icon-button theme-toggle" type="button" aria-label="Toggle color theme">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+      </button>
+      <button class="mobile-menu-button" type="button" aria-label="Open menu"><span class="lang-en">Menu</span><span class="lang-vi">Menu</span></button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" hidden>
+    <div class="shell mobile-menu-inner">
+      {NAV.map(item => <a href={withBase(item.href)}><span class="lang-en">{item.en}</span><span class="lang-vi">{item.vi}</span></a>)}
+    </div>
+  </div>
+</header>
+
+<div class="search-dialog" data-search-url={withBase('/search.json')} role="dialog" aria-modal="true" aria-label="Search" hidden>
+  <button class="search-backdrop" data-close-search aria-label="Close search"></button>
+  <div class="search-panel">
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input class="search-input" type="search" placeholder="Search concepts and articles…" autocomplete="off" />
+      <kbd>ESC</kbd>
+    </div>
+    <div class="search-results" aria-live="polite">
+      <div class="search-empty"><span class="lang-en">Start typing to search.</span><span class="lang-vi">Nhập từ khóa để tìm kiếm.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const getLang = () => document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en';
+  const languageButtons = document.querySelectorAll('[data-set-language]');
+  const searchInput = document.querySelector('.search-input');
+
+  function syncLanguageUI() {
+    const lang = getLang();
+    document.documentElement.lang = lang;
+    languageButtons.forEach(button => {
+      if (button instanceof HTMLElement) button.classList.toggle('active', button.dataset.setLanguage === lang);
+    });
+    if (searchInput instanceof HTMLInputElement) {
+      searchInput.placeholder = lang === 'vi' ? 'Tìm khái niệm và bài viết…' : 'Search concepts and articles…';
+    }
+  }
+
+  languageButtons.forEach(button => button.addEventListener('click', () => {
+    if (!(button instanceof HTMLElement)) return;
+    const lang = button.dataset.setLanguage === 'vi' ? 'vi' : 'en';
+    document.documentElement.dataset.lang = lang;
+    localStorage.setItem('language', lang);
+    syncLanguageUI();
+  }));
+  syncLanguageUI();
+
+  const themeButton = document.querySelector('.theme-toggle');
+  themeButton?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+  });
+
+  const menuButton = document.querySelector('.mobile-menu-button');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  menuButton?.addEventListener('click', () => {
+    if (!(mobileMenu instanceof HTMLElement)) return;
+    mobileMenu.hidden = !mobileMenu.hidden;
+  });
+
+  const dialog = document.querySelector('.search-dialog');
+  const input = document.querySelector('.search-input');
+  const results = document.querySelector('.search-results');
+  let index = [];
+  let loaded = false;
+
+  const emptyText = () => getLang() === 'vi' ? 'Nhập từ khóa để tìm kiếm.' : 'Start typing to search.';
+  const notFoundText = () => getLang() === 'vi' ? 'Không tìm thấy bài phù hợp.' : 'No matching articles.';
+
+  async function loadIndex() {
+    if (loaded) return;
+    try {
+      const searchUrl = dialog instanceof HTMLElement ? dialog.dataset.searchUrl : undefined;
+      const response = await fetch(searchUrl || 'search.json');
+      index = await response.json();
+      loaded = true;
+    } catch {
+      if (results) results.innerHTML = `<div class="search-empty">${getLang() === 'vi' ? 'Không tải được dữ liệu tìm kiếm.' : 'Search index could not be loaded.'}</div>`;
+    }
+  }
+
+  function openSearch() {
+    if (!(dialog instanceof HTMLElement)) return;
+    dialog.hidden = false;
+    document.body.classList.add('no-scroll');
+    loadIndex();
+    requestAnimationFrame(() => input instanceof HTMLInputElement && input.focus());
+  }
+
+  function closeSearch() {
+    if (!(dialog instanceof HTMLElement)) return;
+    dialog.hidden = true;
+    document.body.classList.remove('no-scroll');
+    if (input instanceof HTMLInputElement) input.value = '';
+    if (results) results.innerHTML = `<div class="search-empty">${emptyText()}</div>`;
+  }
+
+  document.querySelectorAll('.search-trigger').forEach(el => el.addEventListener('click', openSearch));
+  document.querySelectorAll('[data-close-search]').forEach(el => el.addEventListener('click', closeSearch));
+  document.addEventListener('keydown', event => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      openSearch();
+    }
+    if (event.key === 'Escape') closeSearch();
+  });
+
+  input?.addEventListener('input', () => {
+    if (!(input instanceof HTMLInputElement) || !results) return;
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      results.innerHTML = `<div class="search-empty">${emptyText()}</div>`;
+      return;
+    }
+    const tokens = q.split(/\s+/);
+    const ranked = index
+      .map(item => {
+        const haystack = `${item.title} ${item.description} ${item.domain} ${item.topic} ${item.type} ${item.section} ${item.level}`.toLowerCase();
+        const score = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1 : 0), 0);
+        return { item, score };
+      })
+      .filter(row => row.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+
+    if (!ranked.length) {
+      results.innerHTML = `<div class="search-empty">${notFoundText()}</div>`;
+      return;
+    }
+    results.innerHTML = ranked.map(({ item }) => `
+      <a class="search-result" href="${item.href}">
+        <span class="search-result-meta">${item.section} · ${item.domain}</span>
+        <strong>${item.title}</strong>
+        <span>${item.description}</span>
+      </a>
+    `).join('');
+  });
+</script>

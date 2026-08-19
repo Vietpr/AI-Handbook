@@ -1,0 +1,31 @@
+---
+title: "LeetCode 1 — Two Sum"
+description: "From brute force to a one-pass hash map."
+domain: "Algorithms"
+topic: "leetcode"
+type: "LeetCode"
+section: "Algorithm"
+language: "vi"
+level: "Beginner"
+order: 1
+pubDate: 2026-08-19
+readingTime: 7
+featured: false
+draft: false
+prerequisites:
+  - Hash Table
+---
+
+## Đề bài
+
+## Suy nghĩ đầu tiên
+
+## Từ O(n²) tới O(n)
+
+## Invariant
+
+## Code
+
+## Complexity
+
+## Điều cần nhớ

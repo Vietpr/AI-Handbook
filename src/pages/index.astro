@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../config';
+---
+<BaseLayout>
+  <section class="home-about shell">
+    <div class="home-about-copy">
+      <h1>
+        <span class="lang-en">Hi, I'm {SITE.author}.</span>
+        <span class="lang-vi">Chào bạn, tôi là {SITE.author}.</span>
+      </h1>
+      <p class="home-role">{SITE.role}</p>
+      <p class="lang-en">
+        I write clear, practical notes on Generative AI, computer vision, and AI systems.
+      </p>
+      <p class="lang-vi">
+        Mình viết những ghi chép rõ ràng, thực tế về Generative AI, computer vision và các hệ thống AI.
+      </p>
+      <div class="home-links">
+        <a href={SITE.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

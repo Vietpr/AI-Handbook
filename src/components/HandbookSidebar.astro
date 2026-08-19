@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { KNOWLEDGE } from '../data/knowledge';
+import { withBase } from '../lib/url';
+
+interface Props {
+  posts: CollectionEntry<'posts'>[];
+  currentDomain?: string;
+  currentPostId?: string;
+}
+const { posts, currentDomain = '', currentPostId = '' } = Astro.props;
+const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
+---
+<aside class="handbook-sidebar" aria-label="AI Handbook navigation">
+  <div class="handbook-sidebar-inner">
+    <a class="sidebar-home" href={withBase('/learn')}>AI Handbook</a>
+    {KNOWLEDGE.map(section => {
+      const items = posts
+        .filter(post => domainKey(post.data.domain) === section.id)
+        .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+      const activeGroup = currentDomain === section.id;
+      return (
+        <section class:list={['sidebar-group', { active: activeGroup }]}>
+          <a class="sidebar-group-title" href={withBase(`/learn/${section.id}`)}>
+            <span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span>
+          </a>
+          {items.length > 0 && (
+            <nav>
+              {items.map(post => (
+                <a class:list={['sidebar-lesson', { active: currentPostId === post.id }]} href={withBase(`/articles/${post.id}`)}>
+                  {post.data.title}
+                </a>
+              ))}
+            </nav>
+          )}
+        </section>
+      );
+    })}
+  </div>
+</aside>

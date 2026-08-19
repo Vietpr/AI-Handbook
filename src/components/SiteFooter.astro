@@ -1,0 +1,23 @@
+---
+import { SITE } from '../config';
+import { withBase } from '../lib/url';
+---
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div>
+      <a class="brand footer-brand" href={withBase('/')}>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>{SITE.name}</span>
+      </a>
+      <p><span class="lang-en">A personal knowledge site by {SITE.author}.</span><span class="lang-vi">Website ghi chép kiến thức cá nhân của {SITE.author}.</span></p>
+    </div>
+    <div class="footer-links">
+      <a href={withBase('/')}><span class="lang-en">Home</span><span class="lang-vi">Trang chủ</span></a>
+      <a href={withBase('/learn')}><span class="lang-en">Learn</span><span class="lang-vi">Học AI</span></a>
+      <a href={withBase('/algorithms')}><span class="lang-en">Algorithms</span><span class="lang-vi">Thuật toán</span></a>
+      <a href={withBase('/blog')}>Blog</a>
+      {SITE.github && <a href={SITE.github}>GitHub ↗</a>}
+    </div>
+    <p class="footer-meta">© {new Date().getFullYear()} {SITE.author}</p>
+  </div>
+</footer>

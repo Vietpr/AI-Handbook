@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HandbookSidebar from '../../components/HandbookSidebar.astro';
+import { KNOWLEDGE } from '../../data/knowledge';
+import { withBase } from '../../lib/url';
+
+export function getStaticPaths() {
+  return KNOWLEDGE.map(section => ({ params: { domain: section.id }, props: { section } }));
+}
+
+const { section } = Astro.props;
+const allPosts = await getCollection('posts', ({ data }) => !data.draft && data.section === 'Handbook');
+const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
+const posts = allPosts
+  .filter(post => domainKey(post.data.domain) === section.id)
+  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+---
+<BaseLayout title={section.title}>
+  <div class="handbook-layout shell-wide">
+    <HandbookSidebar posts={allPosts} currentDomain={section.id} />
+    <main class="chapter-main">
+      <div class="breadcrumbs"><a href={withBase('/learn')}>AI Handbook</a><span>›</span><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></div>
+      <header class="chapter-header">
+        <p class="section-label">{section.index}</p>
+        <h1><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></h1>
+        <p><span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span></p>
+      </header>
+
+      <section class="chapter-lessons">
+        <h2><span class="lang-en">Lessons</span><span class="lang-vi">Bài học</span></h2>
+        {posts.length ? (
+          <div class="lesson-list">
+            {posts.map((post, index) => (
+              <a href={withBase(`/articles/${post.id}`)} class="lesson-row">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <div><strong>{post.data.title}</strong><p>{post.data.description}</p></div>
+                <em>{post.data.level}</em>
+                <i>→</i>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="empty-copy"><span class="lang-en">Lessons for this chapter will be added gradually.</span><span class="lang-vi">Các bài trong chương này sẽ được bổ sung dần.</span></p>
+        )}
+      </section>
+    </main>
+  </div>
+</BaseLayout>

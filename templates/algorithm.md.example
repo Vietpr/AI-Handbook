@@ -1,0 +1,30 @@
+---
+title: "Two Pointers"
+description: "How the two-pointer pattern reduces the search space."
+domain: "Algorithms"
+topic: "patterns"
+type: "Algorithm"
+section: "Algorithm"
+language: "vi"
+level: "Beginner"
+order: 1
+pubDate: 2026-08-19
+readingTime: 8
+featured: false
+draft: false
+prerequisites: []
+---
+
+## Bài toán có hình dạng gì?
+
+## Cách brute force
+
+## Quan sát quan trọng
+
+## Thuật toán
+
+## Độ phức tạp
+
+## Implementation
+
+## Những lỗi dễ gặp
