@@ -4,7 +4,7 @@ description: "A practical mental model for vectors, matrices, dot products and w
 domain: "Foundations"
 topic: "Linear Algebra"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

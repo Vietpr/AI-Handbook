@@ -2,28 +2,64 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase } from '../lib/url';
-const posts = (await getCollection('posts', ({ data }) => !data.draft && data.section === 'Blog')).sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+import { langClass } from '../lib/translations';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft && data.section === 'Blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 <BaseLayout title="Blog">
   <section class="page-hero shell compact-hero">
     <p class="eyebrow">Blog</p>
-    <h1 class="lang-en">Things worth writing down.</h1>
-    <h1 class="lang-vi">Những thứ đáng để viết lại.</h1>
-    <p class="lang-en">Repos I find interesting, engineering lessons, experiments, opinions and small ideas that do not need to become handbook chapters.</p>
-    <p class="lang-vi">Repo thú vị, bài học engineering, experiment, góc nhìn cá nhân và những ý nhỏ không cần trở thành một chương trong handbook.</p>
+    <h1>
+      <span class="lang-en">Things worth writing down.</span>
+      <span class="lang-vi">Những thứ đáng để viết lại.</span>
+    </h1>
+    <p class="compact-lede">
+      <span class="lang-en">
+        Deep dives into real-world AI systems, papers, experiments, and engineering lessons beyond the handbook's core learning path.
+      </span>
+      <span class="lang-vi">
+        Các bài đào sâu về hệ thống AI thực tế, paper, thử nghiệm và bài học engineering nằm ngoài lộ trình cốt lõi của handbook.
+      </span>
+    </p>
   </section>
+
   <section class="shell page-section blog-index">
-    {posts.length ? posts.map(post => (
-      <a class="note-row" href={withBase(`/articles/${post.id}`)}>
-        <time>{post.data.pubDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' })}</time>
-        <div><strong>{post.data.title}</strong><span>{post.data.description}</span></div>
-        <em>{post.data.language.toUpperCase()}</em><i>→</i>
-      </a>
-    )) : (
+    {posts.length ? (
+      <ul class="note-list">
+        {posts.map(post => (
+          <li class={langClass(post, posts)}>
+            <a class="note-row" href={withBase(`/articles/${post.id}`)}>
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' })}
+              </time>
+              <span class="note-body">
+                <strong>{post.data.title}</strong>
+                <span>{post.data.description}</span>
+              </span>
+              <em>{post.data.language.toUpperCase()}</em>
+              <i aria-hidden="true">→</i>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
       <div class="notes-empty">
-        <span>BLOG / 000</span>
-        <h2><span class="lang-en">Nothing here yet.</span><span class="lang-vi">Chưa có bài viết.</span></h2>
-        <p><span class="lang-en">This section is intentionally empty so the blog starts with your own writing.</span><span class="lang-vi">Phần này được để trống có chủ đích để blog bắt đầu bằng chính những bài bạn viết.</span></p>
+        <h2><span class="lang-en">Nothing here yet.</span><span class="lang-vi">Chưa có bài viết nào.</span></h2>
+        <p>
+          <span class="lang-en">
+            This section is intentionally empty so the blog starts with real writing rather than filler.
+            In the meantime, the handbook is where most of the material lives.
+          </span>
+          <span class="lang-vi">
+            Phần này được để trống có chủ đích để blog bắt đầu bằng bài viết thật thay vì nội dung lấp chỗ.
+            Trong lúc chờ, phần lớn nội dung đang nằm ở handbook.
+          </span>
+        </p>
+        <a class="button primary" href={withBase('/learn')}>
+          <span class="lang-en">Go to the handbook</span><span class="lang-vi">Tới mục Học AI</span>
+          <span aria-hidden="true">→</span>
+        </a>
       </div>
     )}
   </section>

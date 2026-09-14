@@ -4,7 +4,7 @@ description: "A practical mental model for what vector representations preserve,
 domain: "Foundations"
 topic: "Representation"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 priority: "High"
 order: 5
 language: "en"

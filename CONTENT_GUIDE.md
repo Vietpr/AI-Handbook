@@ -1,10 +1,10 @@
 # Content Guide
 
-The site has three content areas: **AI Handbook**, **Algorithms**, and **Blog**.
+The site has three content areas: **Learn**, **Algorithms**, and **Blog**.
 
-## AI Handbook (`section: "Handbook"`)
+## Learn (`section: "Learn"`)
 
-Use this for structured AI knowledge. A Handbook article should be complete enough that a beginner can build the right mental model without jumping across several posts.
+Use this for structured AI knowledge. A Learn article should be complete enough that a beginner can build the right mental model without jumping across several posts.
 
 Suggested structure:
 
@@ -17,13 +17,13 @@ Suggested structure:
 7. Engineering trade-offs / production implications.
 8. Related concepts and what to learn next.
 
-Repository or paper analysis belongs **inside the relevant Handbook topic** when it helps explain the idea. There is no separate Deep Dives section.
+Repository or paper analysis belongs **inside the relevant Learn article** when it helps explain the idea. There is no separate Deep Dives section.
 
-Use `priority` and `order` so the article fits the learning path.
+Every Learn article belongs to a chapter (`domain`, one of the five in `src/data/knowledge.ts`). Use `order` so it sits in the right place inside that chapter.
 
-## Algorithms (`section: "Algorithm"`)
+## Algorithms (`section: "Algorithms"`)
 
-Use this for data structures, algorithms, problem-solving patterns and LeetCode solutions.
+Use this for data structures, algorithms, problem-solving patterns and LeetCode solutions. Every article here names a `topic` from the study table in `src/data/algorithms.ts` and a `type` — `Algorithm` for a study guide, `LeetCode` for a solution — which is how `/algorithms` finds it.
 
 For a concept / pattern (`type: "Algorithm"`):
 
@@ -49,10 +49,10 @@ Blog is intentionally lighter and more personal. Good examples:
 - a short note about a paper or tool;
 - something worth revisiting later.
 
-A Blog post can later become a Handbook article if the idea becomes stable, reusable knowledge.
+A Blog post can later become a Learn article if the idea becomes stable, reusable knowledge.
 
 ## Languages
 
 Use `language: "en"` or `language: "vi"` in frontmatter. The site UI supports EN / VI independently of article language.
 
-If you later publish the same article in both languages, give both files the same `translationKey`. This field is reserved for linking translations in a future iteration.
+To publish the same article in both languages, give both files the same `translationKey` (the writer does this for you). The site then treats them as one article: listed once, shown in the reader's language, linked to each other.

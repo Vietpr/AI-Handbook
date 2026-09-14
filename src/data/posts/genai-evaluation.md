@@ -4,7 +4,7 @@ description: "How to evaluate RAG, tool use and generated answers with layered m
 domain: "Generative AI"
 topic: "Evaluation"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "Essential"

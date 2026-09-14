@@ -4,7 +4,7 @@ description: "The probability concepts that matter most for machine learning: ra
 domain: "Foundations"
 topic: "Probability"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

@@ -1,43 +1,91 @@
 ---
 import { NAV, SITE } from '../config';
 import { withBase } from '../lib/url';
+
+interface Props {
+  /* Set on article pages: the interface follows the article's language. */
+  lockedLang?: 'en' | 'vi';
+  /* Where the same article lives in each language, for article pages. */
+  alternates?: Partial<Record<'en' | 'vi', string>>;
+}
+const { lockedLang, alternates = {} } = Astro.props;
+
 const current = Astro.url.pathname;
-const isActive = (href: string) => href === '/' ? current === withBase('/') : current.startsWith(withBase(href));
+const isActive = (href: string) =>
+  href === '/' ? current === withBase('/') : current.startsWith(withBase(href));
+
+const LANGUAGES = [
+  { code: 'en', label: 'EN', missing: 'No English version yet', missingVi: 'Chưa có bản tiếng Anh' },
+  { code: 'vi', label: 'VI', missing: 'No Vietnamese version yet', missingVi: 'Chưa có bản tiếng Việt' },
+] as const;
 ---
+<a class="skip-link" href="#main-content">
+  <span class="lang-en">Skip to content</span><span class="lang-vi">Tới nội dung chính</span>
+</a>
+
 <header class="site-header">
   <div class="shell header-inner">
     <a class="brand" href={withBase('/')} aria-label={`${SITE.name} home`}>
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="brand-mark" aria-hidden="true"></span>
       <span>{SITE.name}</span>
     </a>
 
     <nav class="desktop-nav" aria-label="Primary">
       {NAV.map(item => (
-        <a class:list={['nav-link', { active: isActive(item.href) }]} href={withBase(item.href)}>
+        <a
+          class:list={['nav-link', { active: isActive(item.href) }]}
+          href={withBase(item.href)}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
           <span class="lang-en">{item.en}</span><span class="lang-vi">{item.vi}</span>
         </a>
       ))}
     </nav>
 
     <div class="header-actions">
-      <div class="language-switch" aria-label="Language">
-        <button type="button" data-set-language="en">EN</button>
-        <span>/</span>
-        <button type="button" data-set-language="vi">VI</button>
-      </div>
       <button class="icon-button search-trigger" type="button" aria-label="Search">
-        <span class="lang-en">Search</span><span class="lang-vi">Tìm</span><kbd>⌘K</kbd>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <span class="search-trigger-label lang-en">Search</span><span class="search-trigger-label lang-vi">Tìm kiếm</span>
+        <kbd>⌘K</kbd>
       </button>
+
+      <div class="language-switch" role="group" aria-label="Language">
+        {LANGUAGES.map(language => {
+          /* On an article page the other language is a link to the translation
+             when there is one, and greyed out when there is not. */
+          if (lockedLang && language.code !== lockedLang) {
+            const href = alternates[language.code];
+            return href
+              ? <a href={href} data-set-language={language.code}>{language.label}</a>
+              : <button type="button" disabled title={lockedLang === 'vi' ? language.missingVi : language.missing}>{language.label}</button>;
+          }
+          return <button type="button" data-set-language={language.code}>{language.label}</button>;
+        })}
+      </div>
+
       <button class="icon-button theme-toggle" type="button" aria-label="Toggle color theme">
-        <span class="theme-icon" aria-hidden="true">◐</span>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"></path></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.6A8.2 8.2 0 0 1 10.4 4a8.2 8.2 0 1 0 9.6 9.6z"></path></svg>
       </button>
-      <button class="mobile-menu-button" type="button" aria-label="Open menu"><span class="lang-en">Menu</span><span class="lang-vi">Menu</span></button>
+
+      <button class="mobile-menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
     </div>
   </div>
 
-  <div class="mobile-menu" hidden>
+  <div class="mobile-menu" id="mobile-menu" hidden>
     <div class="shell mobile-menu-inner">
-      {NAV.map(item => <a href={withBase(item.href)}><span class="lang-en">{item.en}</span><span class="lang-vi">{item.vi}</span></a>)}
+      {NAV.map(item => (
+        <a
+          class:list={[{ active: isActive(item.href) }]}
+          href={withBase(item.href)}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          <span class="lang-en">{item.en}</span><span class="lang-vi">{item.vi}</span>
+          <i aria-hidden="true">→</i>
+        </a>
+      ))}
     </div>
   </div>
 </header>
@@ -47,129 +95,202 @@ const isActive = (href: string) => href === '/' ? current === withBase('/') : cu
   <div class="search-panel">
     <div class="search-input-wrap">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-      <input class="search-input" type="search" placeholder="Search concepts and articles…" autocomplete="off" />
+      <input class="search-input" type="search" placeholder="Search concepts and articles…" autocomplete="off" spellcheck="false" aria-label="Search" />
       <kbd>ESC</kbd>
     </div>
-    <div class="search-results" aria-live="polite">
-      <div class="search-empty"><span class="lang-en">Start typing to search.</span><span class="lang-vi">Nhập từ khóa để tìm kiếm.</span></div>
+    <div class="search-results" aria-live="polite"></div>
+    <div class="search-hints" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> <span class="lang-en">navigate</span><span class="lang-vi">di chuyển</span></span>
+      <span><kbd>↵</kbd> <span class="lang-en">open</span><span class="lang-vi">mở bài</span></span>
+      <span><kbd>esc</kbd> <span class="lang-en">close</span><span class="lang-vi">đóng</span></span>
     </div>
   </div>
 </div>
 
 <script>
-  const getLang = () => document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en';
-  const languageButtons = document.querySelectorAll('[data-set-language]');
-  const searchInput = document.querySelector('.search-input');
+  const root = document.documentElement;
+  const getLang = () => (root.dataset.lang === 'vi' ? 'vi' : 'en');
+  const t = (en: string, vi: string) => (getLang() === 'vi' ? vi : en);
+
+  /* Language ------------------------------------------------------------- */
+  const languageButtons = document.querySelectorAll<HTMLElement>('[data-set-language]');
+  const searchInput = document.querySelector<HTMLInputElement>('.search-input');
 
   function syncLanguageUI() {
     const lang = getLang();
-    document.documentElement.lang = lang;
+    root.lang = lang;
     languageButtons.forEach(button => {
-      if (button instanceof HTMLElement) button.classList.toggle('active', button.dataset.setLanguage === lang);
+      const isCurrent = button.dataset.setLanguage === lang;
+      button.classList.toggle('active', isCurrent);
+      button.setAttribute('aria-pressed', String(isCurrent));
     });
-    if (searchInput instanceof HTMLInputElement) {
-      searchInput.placeholder = lang === 'vi' ? 'Tìm khái niệm và bài viết…' : 'Search concepts and articles…';
+    if (searchInput) {
+      searchInput.placeholder = t('Search concepts and articles…', 'Tìm khái niệm và bài viết…');
     }
   }
 
-  languageButtons.forEach(button => button.addEventListener('click', () => {
-    if (!(button instanceof HTMLElement)) return;
-    const lang = button.dataset.setLanguage === 'vi' ? 'vi' : 'en';
-    document.documentElement.dataset.lang = lang;
-    localStorage.setItem('language', lang);
-    syncLanguageUI();
-  }));
+  languageButtons.forEach(button =>
+    button.addEventListener('click', () => {
+      const lang = button.dataset.setLanguage === 'vi' ? 'vi' : 'en';
+      localStorage.setItem('language', lang);
+      /* A link means "open the translation": remember the choice and let the
+         browser navigate. A locked page never changes language in place. */
+      if (button instanceof HTMLAnchorElement || 'langLocked' in root.dataset) return;
+      root.dataset.lang = lang;
+      syncLanguageUI();
+    }),
+  );
   syncLanguageUI();
 
-  const themeButton = document.querySelector('.theme-toggle');
-  themeButton?.addEventListener('click', () => {
-    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
+  /* Theme ---------------------------------------------------------------- */
+  document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
     localStorage.setItem('theme', next);
   });
 
-  const menuButton = document.querySelector('.mobile-menu-button');
-  const mobileMenu = document.querySelector('.mobile-menu');
+  /* Mobile menu ---------------------------------------------------------- */
+  const menuButton = document.querySelector<HTMLButtonElement>('.mobile-menu-button');
+  const mobileMenu = document.querySelector<HTMLElement>('.mobile-menu');
   menuButton?.addEventListener('click', () => {
-    if (!(mobileMenu instanceof HTMLElement)) return;
-    mobileMenu.hidden = !mobileMenu.hidden;
+    if (!mobileMenu) return;
+    const open = mobileMenu.hidden;
+    mobileMenu.hidden = !open;
+    menuButton.setAttribute('aria-expanded', String(open));
   });
 
-  const dialog = document.querySelector('.search-dialog');
-  const input = document.querySelector('.search-input');
-  const results = document.querySelector('.search-results');
-  let index = [];
+  /* Search --------------------------------------------------------------- */
+  const dialog = document.querySelector<HTMLElement>('.search-dialog');
+  const results = document.querySelector<HTMLElement>('.search-results');
+  let index: any[] = [];
   let loaded = false;
+  let active = -1;
 
-  const emptyText = () => getLang() === 'vi' ? 'Nhập từ khóa để tìm kiếm.' : 'Start typing to search.';
-  const notFoundText = () => getLang() === 'vi' ? 'Không tìm thấy bài phù hợp.' : 'No matching articles.';
+  const hint = (text: string) => `<p class="search-empty">${text}</p>`;
+
+  function renderIdle() {
+    if (results) results.innerHTML = hint(t('Start typing to search.', 'Nhập từ khóa để tìm kiếm.'));
+    active = -1;
+  }
 
   async function loadIndex() {
     if (loaded) return;
     try {
-      const searchUrl = dialog instanceof HTMLElement ? dialog.dataset.searchUrl : undefined;
-      const response = await fetch(searchUrl || 'search.json');
+      const response = await fetch(dialog?.dataset.searchUrl || 'search.json');
       index = await response.json();
       loaded = true;
     } catch {
-      if (results) results.innerHTML = `<div class="search-empty">${getLang() === 'vi' ? 'Không tải được dữ liệu tìm kiếm.' : 'Search index could not be loaded.'}</div>`;
+      if (results) {
+        results.innerHTML = hint(t('Search index could not be loaded.', 'Không tải được dữ liệu tìm kiếm.'));
+      }
     }
   }
 
   function openSearch() {
-    if (!(dialog instanceof HTMLElement)) return;
+    if (!dialog) return;
     dialog.hidden = false;
     document.body.classList.add('no-scroll');
+    renderIdle();
     loadIndex();
-    requestAnimationFrame(() => input instanceof HTMLInputElement && input.focus());
+    requestAnimationFrame(() => searchInput?.focus());
   }
 
   function closeSearch() {
-    if (!(dialog instanceof HTMLElement)) return;
+    if (!dialog) return;
     dialog.hidden = true;
     document.body.classList.remove('no-scroll');
-    if (input instanceof HTMLInputElement) input.value = '';
-    if (results) results.innerHTML = `<div class="search-empty">${emptyText()}</div>`;
+    if (searchInput) searchInput.value = '';
+    renderIdle();
   }
 
   document.querySelectorAll('.search-trigger').forEach(el => el.addEventListener('click', openSearch));
   document.querySelectorAll('[data-close-search]').forEach(el => el.addEventListener('click', closeSearch));
+
+  function moveActive(step: number) {
+    const items = results?.querySelectorAll<HTMLAnchorElement>('.search-result');
+    if (!items || !items.length) return;
+    active = (active + step + items.length) % items.length;
+    items.forEach((item, i) => item.classList.toggle('active', i === active));
+    items[active].scrollIntoView({ block: 'nearest' });
+  }
+
   document.addEventListener('keydown', event => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
       openSearch();
-    }
-    if (event.key === 'Escape') closeSearch();
-  });
-
-  input?.addEventListener('input', () => {
-    if (!(input instanceof HTMLInputElement) || !results) return;
-    const q = input.value.trim().toLowerCase();
-    if (!q) {
-      results.innerHTML = `<div class="search-empty">${emptyText()}</div>`;
       return;
     }
-    const tokens = q.split(/\s+/);
+    if (dialog?.hidden) {
+      // "/" is a familiar shortcut, but never steal it from a text field.
+      const target = event.target as HTMLElement | null;
+      const typing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable;
+      if (event.key === '/' && !typing) {
+        event.preventDefault();
+        openSearch();
+      }
+      return;
+    }
+    if (event.key === 'Escape') closeSearch();
+    if (event.key === 'ArrowDown') { event.preventDefault(); moveActive(1); }
+    if (event.key === 'ArrowUp') { event.preventDefault(); moveActive(-1); }
+    if (event.key === 'Enter') {
+      const items = results?.querySelectorAll<HTMLAnchorElement>('.search-result');
+      const target = items?.[active < 0 ? 0 : active];
+      if (target) { event.preventDefault(); window.location.href = target.href; }
+    }
+  });
+
+  const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, ch =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch] as string,
+    );
+
+  searchInput?.addEventListener('input', () => {
+    if (!results) return;
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) { renderIdle(); return; }
+
+    const tokens = query.split(/\s+/);
     const ranked = index
       .map(item => {
-        const haystack = `${item.title} ${item.description} ${item.domain} ${item.topic} ${item.type} ${item.section} ${item.level}`.toLowerCase();
-        const score = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1 : 0), 0);
+        const title = String(item.title).toLowerCase();
+        const rest = `${item.description} ${item.domain} ${item.topic} ${item.type} ${item.section}`.toLowerCase();
+        // A title hit is worth more than a body hit, so exact-name lookups rank first.
+        const score = tokens.reduce(
+          (sum, token) => sum + (title.includes(token) ? 3 : 0) + (rest.includes(token) ? 1 : 0),
+          0,
+        );
         return { item, score };
       })
       .filter(row => row.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+      .slice(0, 10);
 
     if (!ranked.length) {
-      results.innerHTML = `<div class="search-empty">${notFoundText()}</div>`;
+      results.innerHTML = hint(t('No matching articles.', 'Không tìm thấy bài phù hợp.'));
+      active = -1;
       return;
     }
-    results.innerHTML = ranked.map(({ item }) => `
+
+    results.innerHTML = ranked
+      .map(
+        ({ item }) => `
       <a class="search-result" href="${item.href}">
-        <span class="search-result-meta">${item.section} · ${item.domain}</span>
-        <strong>${item.title}</strong>
-        <span>${item.description}</span>
-      </a>
-    `).join('');
+        <span class="search-result-meta">${escapeHtml(item.section)} · ${escapeHtml(item.domain)} · ${escapeHtml(String(item.language || 'en').toUpperCase())}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span class="search-result-desc">${escapeHtml(item.description)}</span>
+      </a>`,
+      )
+      .join('');
+    active = 0;
+    results.querySelector('.search-result')?.classList.add('active');
+  });
+
+  results?.addEventListener('mousemove', event => {
+    const item = (event.target as HTMLElement).closest('.search-result');
+    if (!item) return;
+    const items = Array.from(results.querySelectorAll('.search-result'));
+    active = items.indexOf(item);
+    items.forEach((el, i) => el.classList.toggle('active', i === active));
   });
 </script>

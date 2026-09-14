@@ -4,7 +4,7 @@ description: "Why durable memory is less about storing messages and more about d
 domain: "Generative AI"
 topic: "Memory"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Advanced"
 pubDate: 2026-08-19

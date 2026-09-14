@@ -1,7 +1,7 @@
 export const SITE = {
-  name: 'AI Field Notes',
-  author: 'Pham Van Viet',
-  role: 'AI / GenAI Engineer',
+  name: 'Technical Handbook',
+  author: 'Viet Pham',
+  role: 'AI Engineer',
   title: 'Notes for understanding AI, one layer at a time.',
   description:
     'A personal knowledge site about AI foundations, machine learning, computer vision, generative AI, AI systems, algorithms and problem solving.',

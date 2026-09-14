@@ -3,25 +3,121 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { ALGORITHM_GUIDES } from '../data/algorithms';
 import { withBase } from '../lib/url';
+import { PRIORITY_VI } from '../lib/labels';
+import { langClass, byOrder } from '../lib/translations';
 
-const posts = (await getCollection('posts', ({ data }) => !data.draft && data.section === 'Algorithm'))
-  .sort((a,b) => (a.data.order ?? 999) - (b.data.order ?? 999));
-const articleFor = (topic: string) => posts.find(post => post.data.type === 'Algorithm' && post.data.topic.toLowerCase() === topic.toLowerCase());
+const posts = (await getCollection('posts', ({ data }) => !data.draft && data.section === 'Algorithms')).sort(byOrder);
+/* Every version of the guide for a topic - usually one, two when translated. */
+const articlesFor = (topic: string) =>
+  posts.filter(post => post.data.type === 'Algorithm' && post.data.topic.toLowerCase() === topic.toLowerCase());
 const leetcodePosts = posts.filter(post => post.data.type === 'LeetCode');
+const written = ALGORITHM_GUIDES.filter(guide => articlesFor(guide.topic).length > 0).length;
 ---
 <BaseLayout title="Algorithms">
   <article class="reference-page shell-reading">
     <header class="reference-header">
-      <p class="section-label">Algorithms</p>
-      <h1><span class="lang-en">Data structures and algorithms study notes</span><span class="lang-vi">Ghi chép về cấu trúc dữ liệu và thuật toán</span></h1>
-      <p class="lang-en">This section is a practical reference for data structures, common algorithmic patterns, and selected LeetCode problems. I use it to keep the reasoning, trade-offs, and edge cases that are easy to forget when only looking at accepted code.</p>
-      <p class="lang-vi">Đây là khu ghi chép thực hành về cấu trúc dữ liệu, các pattern thuật toán thường gặp và một số bài LeetCode chọn lọc. Tôi dùng phần này để lưu lại cách suy luận, trade-off và edge case — những thứ rất dễ quên nếu chỉ nhìn vào đoạn code đã AC.</p>
+      <p class="eyebrow">Algorithms</p>
+      <h1>
+        <span class="lang-en">Data structures and algorithms</span>
+        <span class="lang-vi">Cấu trúc dữ liệu và thuật toán</span>
+      </h1>
+      <p class="reference-lede">
+        <span class="lang-en">
+          A practical reference for data structures, common problem-solving patterns and selected LeetCode
+          problems. I keep the reasoning, trade-offs and edge cases here - the parts that are easy to forget
+          when you only look at accepted code.
+        </span>
+        <span class="lang-vi">
+          Khu ghi chép thực hành về cấu trúc dữ liệu, các pattern giải bài thường gặp và một số bài LeetCode
+          chọn lọc. Mình lưu lại cách suy luận, trade-off và edge case - những thứ rất dễ quên nếu chỉ nhìn
+          vào đoạn code đã AC.
+        </span>
+      </p>
     </header>
 
     <section class="reference-section">
-      <h2><span class="lang-en">What each guide covers</span><span class="lang-vi">Mỗi study guide sẽ có gì</span></h2>
-      <p class="lang-en">The exact structure can vary by topic, but most guides will try to cover:</p>
-      <p class="lang-vi">Cấu trúc có thể thay đổi tùy chủ đề, nhưng phần lớn guide sẽ cố gắng bao gồm:</p>
+      <div class="section-heading">
+        <h2><span class="lang-en">Study guides</span><span class="lang-vi">Danh sách study guide</span></h2>
+        <span class="section-progress">
+          {written}/{ALGORITHM_GUIDES.length} <span class="lang-en">written</span><span class="lang-vi">đã viết</span>
+        </span>
+      </div>
+
+      <ul class="study-table">
+        {ALGORITHM_GUIDES.map(guide => {
+          const versions = articlesFor(guide.topic);
+          const priority = (
+            <span class:list={['priority-tag', guide.priority.toLowerCase()]}>
+              <span class="lang-en">{guide.priority}</span><span class="lang-vi">{PRIORITY_VI[guide.priority] ?? guide.priority}</span>
+            </span>
+          );
+          return (
+            <li>
+              {versions.length ? versions.map(post => (
+                <a class:list={['study-row', langClass(post, posts)]} href={withBase(`/articles/${post.id}`)}>
+                  <strong>{guide.topic}</strong>
+                  {priority}
+                  <i aria-hidden="true">→</i>
+                </a>
+              )) : (
+                <div class="study-row pending">
+                  <strong>{guide.topic}</strong>
+                  {priority}
+                  <em><span class="lang-en">Planned</span><span class="lang-vi">Sắp có</span></em>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      <p class="table-note">
+        <span class="lang-en">
+          Priority only reflects how often I expect a topic to be useful as a general problem-solving tool.
+          It is not a fixed interview curriculum.
+        </span>
+        <span class="lang-vi">
+          Priority chỉ thể hiện mức độ mình kỳ vọng chủ đề đó hữu ích như một công cụ giải bài nói chung.
+          Đây không phải curriculum phỏng vấn cố định.
+        </span>
+      </p>
+    </section>
+
+    <section class="reference-section">
+      <div class="section-heading">
+        <h2>LeetCode</h2>
+        {leetcodePosts.length > 0 && <span class="section-progress">{leetcodePosts.length}</span>}
+      </div>
+      <p>
+        <span class="lang-en">
+          LeetCode notes live here as worked examples. The goal is to preserve the path from a naive idea to
+          the final solution, including alternatives when they are useful.
+        </span>
+        <span class="lang-vi">
+          Các bài LeetCode nằm ở đây như những ví dụ đã giải. Mục tiêu là giữ lại đường suy luận từ ý tưởng
+          ban đầu tới lời giải cuối, kèm alternative khi chúng thực sự hữu ích.
+        </span>
+      </p>
+      {leetcodePosts.length > 0 ? (
+        <div class="simple-post-list">
+          {leetcodePosts.map(post => (
+            <a class={langClass(post, posts)} href={withBase(`/articles/${post.id}`)}>
+              <strong>{post.data.title}</strong>
+              <span>{post.data.description}</span>
+              <i aria-hidden="true">→</i>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="empty-copy">
+          <span class="lang-en">No solutions published yet.</span>
+          <span class="lang-vi">Chưa có lời giải nào được đăng.</span>
+        </p>
+      )}
+    </section>
+
+    <details class="reference-details">
+      <summary><span class="lang-en">What each guide covers</span><span class="lang-vi">Mỗi study guide sẽ có gì</span></summary>
       <ol class="guide-contents lang-en">
         <li>A short mental model and when the structure or technique is useful.</li>
         <li>Core operations and time / space complexity.</li>
@@ -36,28 +132,12 @@ const leetcodePosts = posts.filter(post => post.data.type === 'LeetCode');
         <li>Edge case và lỗi hay mắc cần kiểm tra.</li>
         <li>Một nhóm bài luyện tập nhỏ kèm ghi chú cách suy luận.</li>
       </ol>
-    </section>
+    </details>
 
-    <section class="reference-section">
-      <h2><span class="lang-en">Study guides</span><span class="lang-vi">Danh sách study guide</span></h2>
-      <div class="study-table" role="table" aria-label="Algorithm study guides">
-        <div class="study-row study-head" role="row"><span role="columnheader"><span class="lang-en">Topic</span><span class="lang-vi">Chủ đề</span></span><span role="columnheader"><span class="lang-en">Priority</span><span class="lang-vi">Ưu tiên</span></span></div>
-        {ALGORITHM_GUIDES.map(guide => {
-          const post = articleFor(guide.topic);
-          return post ? (
-            <a class="study-row" role="row" href={withBase(`/articles/${post.id}`)}><strong>{guide.topic}</strong><span>{guide.priority}</span></a>
-          ) : (
-            <div class="study-row" role="row"><strong>{guide.topic}</strong><span>{guide.priority}</span></div>
-          );
-        })}
-      </div>
-      <p class="table-note"><span class="lang-en">Priority here only means how often I expect the topic to be useful as a general problem-solving tool; it is not a fixed interview curriculum.</span><span class="lang-vi">Priority ở đây chỉ thể hiện mức độ tôi kỳ vọng chủ đề hữu ích như một công cụ giải bài nói chung; đây không phải curriculum phỏng vấn cố định.</span></p>
-    </section>
-
-    <section class="reference-section">
-      <h2><span class="lang-en">How I approach problems</span><span class="lang-vi">Cách tôi tiếp cận một bài toán</span></h2>
+    <details class="reference-details">
+      <summary><span class="lang-en">How I approach a problem</span><span class="lang-vi">Cách mình tiếp cận một bài toán</span></summary>
       <ul class="plain-list lang-en">
-        <li>Clarify the input, output, constraints, and assumptions before choosing a technique.</li>
+        <li>Clarify the input, output, constraints and assumptions before choosing a technique.</li>
         <li>Start with the simplest correct idea, then identify the actual bottleneck.</li>
         <li>Choose the data structure because of the operations the problem needs, not because it looks familiar.</li>
         <li>After coding, test boundary cases and state the time and space complexity explicitly.</li>
@@ -68,17 +148,6 @@ const leetcodePosts = posts.filter(post => post.data.type === 'LeetCode');
         <li>Chọn data structure dựa trên các operation bài toán cần, không phải vì nó trông quen mắt.</li>
         <li>Sau khi code, test boundary case và tự nói rõ time / space complexity.</li>
       </ul>
-    </section>
-
-    <section class="reference-section">
-      <h2>LeetCode</h2>
-      <p class="lang-en">LeetCode notes live here as worked examples. The goal is to preserve the path from a naive idea to the final solution, including alternatives when they are useful.</p>
-      <p class="lang-vi">Các bài LeetCode sẽ nằm ở đây như ví dụ đã giải. Mục tiêu là giữ lại đường suy luận từ ý tưởng ban đầu tới lời giải cuối, kèm alternative khi chúng thực sự hữu ích.</p>
-      {leetcodePosts.length > 0 && (
-        <div class="simple-post-list algo-solutions">
-          {leetcodePosts.map(post => <a href={withBase(`/articles/${post.id}`)}><strong>{post.data.title}</strong><span>{post.data.description}</span><i>→</i></a>)}
-        </div>
-      )}
-    </section>
+    </details>
   </article>
 </BaseLayout>

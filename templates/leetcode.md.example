@@ -6,14 +6,10 @@ topic: "leetcode"
 type: "LeetCode"
 section: "Algorithm"
 language: "vi"
-level: "Beginner"
 order: 1
 pubDate: 2026-08-19
-readingTime: 7
 featured: false
 draft: false
-prerequisites:
-  - Hash Table
 ---
 
 ## Đề bài

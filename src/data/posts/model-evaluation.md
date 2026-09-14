@@ -4,7 +4,7 @@ description: "Accuracy, precision, recall, F1, ROC, regression error and the dee
 domain: "Machine Learning"
 topic: "Evaluation"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

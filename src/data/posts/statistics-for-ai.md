@@ -4,7 +4,7 @@ description: "A practical introduction to sampling, estimation, variance, confid
 domain: "Foundations"
 topic: "Statistics"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "High"
