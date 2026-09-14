@@ -6,11 +6,11 @@ export async function GET() {
   return new Response(JSON.stringify(posts.map(post => ({
     title: post.data.title,
     description: post.data.description,
-    domain: post.data.domain,
-    topic: post.data.topic,
+    domain: post.data.domain ?? '',
+    topic: post.data.topic ?? '',
     type: post.data.type,
     section: post.data.section,
-    level: post.data.level,
+    language: post.data.language,
     href: withBase(`/articles/${post.id}`),
   }))), {
     headers: { 'Content-Type': 'application/json; charset=utf-8' },

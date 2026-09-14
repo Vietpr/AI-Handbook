@@ -4,46 +4,85 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import HandbookSidebar from '../../components/HandbookSidebar.astro';
 import { KNOWLEDGE } from '../../data/knowledge';
 import { withBase } from '../../lib/url';
+import { domainKey } from '../../lib/labels';
+import { groupsOf, langClass, byOrder } from '../../lib/translations';
 
 export function getStaticPaths() {
   return KNOWLEDGE.map(section => ({ params: { domain: section.id }, props: { section } }));
 }
 
 const { section } = Astro.props;
-const allPosts = await getCollection('posts', ({ data }) => !data.draft && data.section === 'Handbook');
-const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
+const allPosts = await getCollection('posts', ({ data }) => !data.draft && data.section === 'Learn');
 const posts = allPosts
   .filter(post => domainKey(post.data.domain) === section.id)
-  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+  .sort(byOrder);
+/* A translated lesson is one entry with two versions; CSS shows one. */
+const lessons = groupsOf(posts);
+
+const index = KNOWLEDGE.findIndex(item => item.id === section.id);
+const previousChapter = index > 0 ? KNOWLEDGE[index - 1] : undefined;
+const nextChapter = index < KNOWLEDGE.length - 1 ? KNOWLEDGE[index + 1] : undefined;
 ---
 <BaseLayout title={section.title}>
   <div class="handbook-layout shell-wide">
     <HandbookSidebar posts={allPosts} currentDomain={section.id} />
-    <main class="chapter-main">
-      <div class="breadcrumbs"><a href={withBase('/learn')}>AI Handbook</a><span>›</span><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></div>
+
+    <div class="chapter-main">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href={withBase('/learn')}><span class="lang-en">Learn</span><span class="lang-vi">Học AI</span></a><span aria-hidden="true">›</span>
+        <span aria-current="page"><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></span>
+      </nav>
+
       <header class="chapter-header">
-        <p class="section-label">{section.index}</p>
         <h1><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></h1>
-        <p><span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span></p>
+        <p class="chapter-lede"><span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span></p>
+        {lessons.length > 0 && (
+          <p class="chapter-stats">
+            {lessons.length} <span class="lang-en">{lessons.length === 1 ? 'article' : 'articles'}</span><span class="lang-vi">bài viết</span>
+          </p>
+        )}
       </header>
 
       <section class="chapter-lessons">
-        <h2><span class="lang-en">Lessons</span><span class="lang-vi">Bài học</span></h2>
-        {posts.length ? (
-          <div class="lesson-list">
-            {posts.map((post, index) => (
-              <a href={withBase(`/articles/${post.id}`)} class="lesson-row">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <div><strong>{post.data.title}</strong><p>{post.data.description}</p></div>
-                <em>{post.data.level}</em>
-                <i>→</i>
-              </a>
-            ))}
-          </div>
+        {lessons.length ? (
+          <ol class="lesson-list">
+            {lessons.map((group, i) => group.map(post => (
+              <li class={langClass(post, posts)}>
+                <a href={withBase(`/articles/${post.id}`)} class="lesson-row">
+                  <span class="lesson-index">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="lesson-body">
+                    <strong>{post.data.title}</strong>
+                    <span class="lesson-desc">{post.data.description}</span>
+                  </span>
+                  <i aria-hidden="true">→</i>
+                </a>
+              </li>
+            )))}
+          </ol>
         ) : (
-          <p class="empty-copy"><span class="lang-en">Lessons for this chapter will be added gradually.</span><span class="lang-vi">Các bài trong chương này sẽ được bổ sung dần.</span></p>
+          <p class="empty-copy">
+            <span class="lang-en">Articles for this chapter are still being written.</span>
+            <span class="lang-vi">Các bài trong chương này đang được viết dần.</span>
+          </p>
         )}
       </section>
-    </main>
+
+      {(previousChapter || nextChapter) && (
+        <nav class="article-sequence" aria-label="Chapter navigation">
+          {previousChapter ? (
+            <a href={withBase(`/learn/${previousChapter.id}`)}>
+              <span><span aria-hidden="true">←</span> <span class="lang-en">Previous chapter</span><span class="lang-vi">Chương trước</span></span>
+              <strong><span class="lang-en">{previousChapter.title}</span><span class="lang-vi">{previousChapter.viTitle}</span></strong>
+            </a>
+          ) : <div></div>}
+          {nextChapter ? (
+            <a class="next" href={withBase(`/learn/${nextChapter.id}`)}>
+              <span><span class="lang-en">Next chapter</span><span class="lang-vi">Chương tiếp</span> <span aria-hidden="true">→</span></span>
+              <strong><span class="lang-en">{nextChapter.title}</span><span class="lang-vi">{nextChapter.viTitle}</span></strong>
+            </a>
+          ) : <div></div>}
+        </nav>
+      )}
+    </div>
   </div>
 </BaseLayout>

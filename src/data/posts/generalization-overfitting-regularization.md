@@ -4,7 +4,7 @@ description: "Why fitting training data is not the goal, how overfitting appears
 domain: "Machine Learning"
 topic: "Generalization"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

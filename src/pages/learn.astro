@@ -3,34 +3,50 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { KNOWLEDGE } from '../data/knowledge';
 import { withBase } from '../lib/url';
+import { domainKey } from '../lib/labels';
+import { countArticles } from '../lib/translations';
 
-const posts = await getCollection('posts', ({ data }) => !data.draft && data.section === 'Handbook');
-const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
+const posts = await getCollection('posts', ({ data }) => !data.draft && data.section === 'Learn');
+const total = countArticles(posts);
 ---
-<BaseLayout title="AI Handbook">
+<BaseLayout title="Learn">
   <section class="docs-index shell">
     <header class="docs-index-intro">
-      <p class="section-label">AI Handbook</p>
-      <h1><span class="lang-en">Learn AI from the foundations up.</span><span class="lang-vi">Học AI từ nền tảng đi lên.</span></h1>
-      <p class="lang-en">A structured set of notes on the ideas I use and keep revisiting. Each chapter starts from the basic mental model, then goes deeper into how the idea works in practice.</p>
-      <p class="lang-vi">Một bộ ghi chép có cấu trúc về những kiến thức tôi thường xuyên sử dụng và quay lại học. Mỗi chương bắt đầu từ mental model cơ bản rồi đi sâu dần vào cách nó hoạt động trong thực tế.</p>
+      <h1>
+        <span class="lang-en">Learn AI from the foundations up.</span>
+        <span class="lang-vi">Học AI từ nền tảng đi lên.</span>
+      </h1>
+      <p class="docs-index-lede">
+        <span class="lang-en">
+          Six chapters{total > 0 && `, ${total} ${total === 1 ? 'article' : 'articles'}`}. Each chapter starts with the core intuition, then builds toward how the ideas work in practice. Read them in order, or jump straight to what you need.
+        </span>
+        <span class="lang-vi">
+          Sáu chương{total > 0 && `, ${total} bài viết`}. Mỗi chương bắt đầu từ trực giác cốt lõi rồi đi dần tới cách các ý tưởng vận hành trong thực tế. Bạn có thể đọc theo thứ tự hoặc đi thẳng tới phần mình cần.
+        </span>
+      </p>
     </header>
 
-    <div class="chapter-list">
+    <ol class="chapter-list">
       {KNOWLEDGE.map(section => {
-        const count = posts.filter(post => domainKey(post.data.domain) === section.id).length;
+        const count = countArticles(posts.filter(post => domainKey(post.data.domain) === section.id));
         return (
-          <a class="chapter-row" href={withBase(`/learn/${section.id}`)}>
-            <div>
-              <span class="chapter-number">{section.index}</span>
-              <h2><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></h2>
-            </div>
-            <p><span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span></p>
-            <span class="chapter-count">{count} <span class="lang-en">lessons</span><span class="lang-vi">bài</span></span>
-            <span class="chapter-arrow">→</span>
-          </a>
+          <li>
+            <a class="chapter-card" href={withBase(`/learn/${section.id}`)}>
+              <div class="chapter-card-head">
+                <h2><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></h2>
+                {count > 0 && (
+                  <span class="chapter-count">
+                    {count} <span class="lang-en">{count === 1 ? 'article' : 'articles'}</span><span class="lang-vi">bài</span>
+                  </span>
+                )}
+              </div>
+              <p class="chapter-card-body">
+                <span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span>
+              </p>
+            </a>
+          </li>
         );
       })}
-    </div>
+    </ol>
   </section>
 </BaseLayout>

@@ -4,7 +4,7 @@ description: "A grounded model of tools, agent loops, state and why reliable con
 domain: "Generative AI"
 topic: "Agents"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "High"

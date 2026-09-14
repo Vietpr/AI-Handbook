@@ -8,13 +8,23 @@ import { withBase } from '../lib/url';
 interface Props {
   title?: string;
   description?: string;
+  /*
+   * Article pages pass the language the article is written in. The interface
+   * then follows the article instead of the reader's saved preference, so the
+   * chrome and the text never disagree on a page.
+   */
+  lang?: 'en' | 'vi';
+  /* Paths of this page in each language it exists in, for article pages. */
+  alternates?: Partial<Record<'en' | 'vi', string>>;
 }
 
-const { title = SITE.title, description = SITE.description } = Astro.props;
-const pageTitle = title === SITE.title ? `${SITE.name} — ${title}` : `${title} — ${SITE.name}`;
+const { title = SITE.title, description = SITE.description, lang, alternates } = Astro.props;
+const pageTitle = title === SITE.title ? `${SITE.name} - ${title}` : `${title} - ${SITE.name}`;
+const initialLang = lang ?? 'en';
+const absolute = (path: string) => new URL(path, Astro.site).toString();
 ---
 <!doctype html>
-<html lang="en" data-lang="en">
+<html lang={initialLang} data-lang={initialLang} data-lang-locked={lang ? '' : undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -22,20 +32,40 @@ const pageTitle = title === SITE.title ? `${SITE.name} — ${title}` : `${title}
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{pageTitle}</title>
+    {alternates && Object.keys(alternates).length > 1 && (
+      <>
+        {Object.entries(alternates).map(([code, path]) => (
+          <link rel="alternate" hreflang={code} href={absolute(path)} />
+        ))}
+        <link rel="alternate" hreflang="x-default" href={absolute(alternates.en ?? alternates.vi ?? '/')} />
+      </>
+    )}
     <script is:inline>
       (() => {
+        const root = document.documentElement;
         const savedTheme = localStorage.getItem('theme');
         const dark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-        const savedLanguage = localStorage.getItem('language');
-        document.documentElement.dataset.lang = savedLanguage === 'vi' ? 'vi' : 'en';
-        document.documentElement.lang = savedLanguage === 'vi' ? 'vi' : 'en';
+        root.dataset.theme = dark ? 'dark' : 'light';
+
+        /* Article pages arrive with their language fixed in the markup. Everywhere
+           else the reader's choice wins, English until they press VI themselves;
+           reading a Vietnamese article does not change that choice. */
+        if (!('langLocked' in root.dataset)) {
+          const saved = localStorage.getItem('language');
+          const lang = saved === 'vi' ? 'vi' : 'en';
+          root.dataset.lang = lang;
+          root.lang = lang;
+        }
+
+        const savedSize = Number(localStorage.getItem('text-size'));
+        root.dataset.textSize = savedSize >= 1 && savedSize <= 4 ? String(savedSize) : '2';
+        if (localStorage.getItem('sidebar') === 'closed') root.dataset.sidebar = 'closed';
       })();
     </script>
   </head>
   <body>
-    <SiteHeader />
-    <main><slot /></main>
+    <SiteHeader lockedLang={lang} alternates={alternates} />
+    <main id="main-content"><slot /></main>
     <SiteFooter />
   </body>
 </html>

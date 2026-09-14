@@ -4,7 +4,7 @@ description: "Why a linear decision boundary plus a sigmoid becomes a powerful b
 domain: "Machine Learning"
 topic: "Classification"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "High"

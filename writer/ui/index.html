@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Writer</title>
+  <link rel="icon" href="data:," />
+  <script src="/write/theme.js"></script>
+  <link rel="stylesheet" href="/write/global.css" />
+  <link rel="stylesheet" href="/write/writer.css" />
+</head>
+<body>
+
+<!-- Login ------------------------------------------------------------------ -->
+<section class="w-login" id="view-login" hidden>
+  <form class="w-login-card" id="login-form" autocomplete="on">
+    <h1>Writer</h1>
+    <p class="sub" id="login-sub">Sign in to manage articles.</p>
+
+    <div class="w-field">
+      <label for="login-user">Username</label>
+      <input type="text" id="login-user" name="username" autocomplete="username" required />
+    </div>
+    <div class="w-field">
+      <label for="login-pass">Password</label>
+      <input type="password" id="login-pass" name="password" autocomplete="current-password" required />
+    </div>
+
+    <p class="w-status bad" id="login-error" hidden></p>
+    <button class="w-btn primary" type="submit" id="login-submit" style="width:100%">Sign in</button>
+  </form>
+</section>
+
+<!-- Dashboard -------------------------------------------------------------- -->
+<div id="view-dashboard" hidden>
+  <header class="w-top">
+    <div class="w-shell w-top-inner">
+      <span class="w-brand"><span class="dot"></span><span id="brand-name">Writer</span><small>writer</small></span>
+      <div class="w-top-spacer"></div>
+      <div class="w-top-actions">
+        <button class="w-btn quiet" type="button" data-action="theme" aria-label="Toggle theme">Theme</button>
+        <a class="w-btn quiet" href="/" target="_blank" rel="noreferrer">View site</a>
+        <button class="w-btn quiet" type="button" data-action="logout">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-shell w-page">
+    <div class="w-page-head">
+      <div class="grow">
+        <h1>Articles</h1>
+        <p id="dash-summary">Loading…</p>
+      </div>
+      <button class="w-btn" type="button" data-action="rebuild">Rebuild site</button>
+      <button class="w-btn" type="button" data-action="import">Import Markdown</button>
+      <button class="w-btn primary" type="button" data-action="new">New article</button>
+    </div>
+
+    <div class="w-toolbar">
+      <div class="w-filters" id="dash-filters" role="group" aria-label="Filter articles"></div>
+      <input class="w-search" id="dash-search" type="search" placeholder="Filter by title, slug or topic…" aria-label="Filter articles" />
+    </div>
+
+    <p class="w-status" id="dash-status" hidden></p>
+    <div class="w-list" id="dash-list"></div>
+  </main>
+</div>
+
+<!-- Step 1: article details ------------------------------------------------- -->
+<div id="view-details" hidden>
+  <header class="w-top">
+    <div class="w-shell w-top-inner">
+      <button class="w-btn quiet" type="button" data-action="back">← Articles</button>
+      <span class="w-top-title" id="details-title">New article</span>
+      <div class="w-top-spacer"></div>
+      <div class="w-top-actions">
+        <button class="w-btn quiet" type="button" data-action="theme" aria-label="Toggle theme">Theme</button>
+        <button class="w-btn quiet" type="button" data-action="logout">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-shell w-page w-details">
+    <div class="w-page-head">
+      <div class="grow">
+        <h1 id="details-heading">Article details</h1>
+        <p>Where the article lives and what it is called. The writing screen comes next.</p>
+      </div>
+    </div>
+
+    <!-- Metadata shared by both languages. Chapter/Order appear for Learn,
+         Topic/Kind for Algorithms; Blog needs neither. -->
+    <div class="w-details-grid" id="shared-grid"></div>
+
+    <!-- One panel per language; leave a panel empty to publish in one language. -->
+    <div class="w-langs" id="lang-grid"></div>
+
+    <div class="w-notes" id="details-notes" hidden></div>
+
+    <div class="w-details-bar">
+      <span class="w-status" id="details-status"></span>
+      <div class="grow"></div>
+      <button class="w-btn primary" type="button" data-action="continue" id="continue-btn">Continue to writing →</button>
+    </div>
+  </main>
+</div>
+
+<!-- Step 2: writing -------------------------------------------------------- -->
+<div id="view-write" hidden>
+  <header class="w-top">
+    <div class="w-shell-wide w-top-inner">
+      <button class="w-btn quiet" type="button" data-action="back">← Articles</button>
+      <button class="w-btn quiet" type="button" data-action="details">Details</button>
+      <span class="w-top-title" id="editor-title"></span>
+      <div class="w-top-spacer"></div>
+      <div class="w-top-actions">
+        <button class="w-btn quiet" type="button" data-action="theme" aria-label="Toggle theme">Theme</button>
+        <button class="w-btn quiet" type="button" data-action="logout">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="w-editor">
+    <div class="w-versions">
+      <div class="w-shell-wide w-versions-inner">
+        <div class="w-tabs" role="tablist" aria-label="Language" id="lang-tabs"></div>
+      </div>
+    </div>
+
+    <div class="w-panes" id="panes" data-view="split">
+      <section class="w-pane w-pane-write">
+        <div class="w-pane-head">
+          <span class="label" id="markdown-label">Markdown</span>
+          <div id="md-tools"></div>
+        </div>
+        <textarea id="body-input" spellcheck="false" aria-label="Article body"></textarea>
+      </section>
+
+      <section class="w-pane w-pane-preview">
+        <div class="w-pane-head">
+          <span class="label">Preview</span>
+          <label class="w-check w-auto" title="Rebuild the preview a moment after you stop typing">
+            <input type="checkbox" id="auto-preview" checked />Auto
+          </label>
+          <button class="w-btn small" type="button" data-action="preview">Refresh</button>
+          <button class="w-btn small quiet" type="button" data-action="preview-open">Open in a tab</button>
+        </div>
+        <div class="w-preview-idle" id="preview-idle">
+          <strong>Nothing rendered yet.</strong>
+          <span>The preview appears a moment after you stop typing. It is a real build of the site, so it shows exactly what will be published.</span>
+        </div>
+        <div class="w-preview-stale" id="preview-stale" hidden>
+          Changed since the last preview · <button type="button" data-action="preview">Refresh</button>
+        </div>
+        <iframe class="w-preview-frame" id="preview-frame" title="Article preview" hidden></iframe>
+      </section>
+    </div>
+
+    <div class="w-notes" id="editor-notes" hidden></div>
+
+    <div class="w-bar">
+      <div class="w-filters" role="group" aria-label="Editor view">
+        <button class="w-filter" type="button" data-view-set="write" aria-pressed="false">Write</button>
+        <button class="w-filter" type="button" data-view-set="split" aria-pressed="true">Split</button>
+        <button class="w-filter" type="button" data-view-set="preview" aria-pressed="false">Preview</button>
+      </div>
+      <div class="grow"><span class="w-status" id="editor-status"></span></div>
+      <button class="w-btn" type="button" data-action="images">Images</button>
+      <button class="w-btn" type="button" data-action="save-draft">Save draft</button>
+      <button class="w-btn primary" type="button" data-action="publish">Publish</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<p class="w-sr" id="live-region" role="status" aria-live="polite"></p>
+
+<script type="module" src="/write/app.js"></script>
+</body>
+</html>

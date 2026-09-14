@@ -4,7 +4,7 @@ description: "Understand loss surfaces, gradients, learning rates and the optimi
 domain: "Foundations"
 topic: "Optimization"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

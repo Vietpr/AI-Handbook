@@ -1,0 +1,47 @@
+---
+/*
+ * Reading text-size control. Sets html[data-text-size] (1–4), which drives the
+ * --prose-size custom property; every font size inside .prose is expressed in
+ * em, so the whole article scales from that one value.
+ */
+---
+<div class="text-size" role="group" aria-label="Text size">
+  <span class="text-size-label">
+    <span class="lang-en">Text size</span><span class="lang-vi">Cỡ chữ</span>
+  </span>
+  <button type="button" data-text-step="-1" aria-label="Decrease text size" title="Smaller text">A<span aria-hidden="true">−</span></button>
+  <button type="button" data-text-step="1" aria-label="Increase text size" title="Larger text">A<span aria-hidden="true">+</span></button>
+</div>
+
+<script>
+  const MIN = 1;
+  const MAX = 4;
+  const DEFAULT = 2;
+  const root = document.documentElement;
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-text-step]'));
+
+  const current = () => {
+    const value = Number(root.dataset.textSize);
+    return Number.isFinite(value) ? Math.min(MAX, Math.max(MIN, value)) : DEFAULT;
+  };
+
+  function apply(next: number) {
+    const size = Math.min(MAX, Math.max(MIN, next));
+    root.dataset.textSize = String(size);
+    try {
+      localStorage.setItem('text-size', String(size));
+    } catch {
+      /* Private mode: the choice just doesn't persist. */
+    }
+    buttons.forEach(button => {
+      const step = Number(button.dataset.textStep);
+      button.disabled = step < 0 ? size === MIN : size === MAX;
+    });
+  }
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => apply(current() + Number(button.dataset.textStep)));
+  });
+
+  apply(current());
+</script>

@@ -4,7 +4,7 @@ description: "From overlapping boxes to the suppression rule that quietly shapes
 domain: "Computer Vision"
 topic: "Detection"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 priority: "High"
 order: 1
 language: "en"

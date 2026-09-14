@@ -4,7 +4,7 @@ description: "Prompts are only one part of the problem. Context engineering mana
 domain: "Generative AI"
 topic: "Context Engineering"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "Essential"

@@ -2,6 +2,8 @@
 import type { CollectionEntry } from 'astro:content';
 import { KNOWLEDGE } from '../data/knowledge';
 import { withBase } from '../lib/url';
+import { domainKey } from '../lib/labels';
+import { groupsOf, langClass, byOrder } from '../lib/translations';
 
 interface Props {
   posts: CollectionEntry<'posts'>[];
@@ -9,32 +11,74 @@ interface Props {
   currentPostId?: string;
 }
 const { posts, currentDomain = '', currentPostId = '' } = Astro.props;
-const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
 ---
-<aside class="handbook-sidebar" aria-label="AI Handbook navigation">
+<aside class="handbook-sidebar" aria-label="Handbook navigation">
+  <div class="sidebar-rail">
+    <button class="sidebar-toggle" type="button" data-sidebar-toggle title="Show chapters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+      <span class="sr-only"><span class="lang-en">Show chapters</span><span class="lang-vi">Hiện danh sách chương</span></span>
+    </button>
+  </div>
   <div class="handbook-sidebar-inner">
-    <a class="sidebar-home" href={withBase('/learn')}>AI Handbook</a>
+    <div class="sidebar-head">
+      <a class="sidebar-home" href={withBase('/learn')}>
+        <span aria-hidden="true">←</span>
+        <span class="lang-en">All chapters</span><span class="lang-vi">Tất cả các chương</span>
+      </a>
+      <button class="sidebar-toggle" type="button" data-sidebar-toggle title="Hide chapters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+        <span class="sr-only"><span class="lang-en">Hide chapters</span><span class="lang-vi">Ẩn danh sách chương</span></span>
+      </button>
+    </div>
+
     {KNOWLEDGE.map(section => {
-      const items = posts
-        .filter(post => domainKey(post.data.domain) === section.id)
-        .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
-      const activeGroup = currentDomain === section.id;
+      /* One numbered entry per lesson; a translated lesson renders both
+         versions and CSS shows the one in the interface language. */
+      const lessons = groupsOf(posts.filter(post => domainKey(post.data.domain) === section.id).sort(byOrder));
+      const isCurrent = currentDomain === section.id;
       return (
-        <section class:list={['sidebar-group', { active: activeGroup }]}>
-          <a class="sidebar-group-title" href={withBase(`/learn/${section.id}`)}>
-            <span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span>
-          </a>
-          {items.length > 0 && (
-            <nav>
-              {items.map(post => (
-                <a class:list={['sidebar-lesson', { active: currentPostId === post.id }]} href={withBase(`/articles/${post.id}`)}>
-                  {post.data.title}
-                </a>
-              ))}
-            </nav>
-          )}
-        </section>
+        <details class:list={['sidebar-group', { active: isCurrent }]} open={isCurrent}>
+          <summary>
+            <span class="sidebar-name">
+              <span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span>
+            </span>
+            {lessons.length > 0 && <span class="sidebar-count">{lessons.length}</span>}
+          </summary>
+          <nav>
+            <a class="sidebar-overview" href={withBase(`/learn/${section.id}`)}>
+              <span class="lang-en">Chapter overview</span><span class="lang-vi">Tổng quan chương</span>
+            </a>
+            {lessons.map((group, i) => group.map(post => (
+              <a
+                class:list={['sidebar-lesson', langClass(post, posts), { active: currentPostId === post.id }]}
+                href={withBase(`/articles/${post.id}`)}
+                aria-current={currentPostId === post.id ? 'page' : undefined}
+              >
+                <span class="sidebar-lesson-index">{String(i + 1).padStart(2, '0')}</span>
+                <span>{post.data.title}</span>
+              </a>
+            )))}
+            {lessons.length === 0 && (
+              <p class="sidebar-empty">
+                <span class="lang-en">No lessons yet.</span><span class="lang-vi">Chưa có bài nào.</span>
+              </p>
+            )}
+          </nav>
+        </details>
       );
     })}
   </div>
 </aside>
+
+<script>
+  /* The choice is remembered and restored before first paint by BaseLayout. */
+  const root = document.documentElement;
+  document.querySelectorAll<HTMLButtonElement>('[data-sidebar-toggle]').forEach(button => {
+    button.addEventListener('click', () => {
+      const closed = root.dataset.sidebar !== 'closed';
+      if (closed) root.dataset.sidebar = 'closed';
+      else delete root.dataset.sidebar;
+      try { localStorage.setItem('sidebar', closed ? 'closed' : 'open'); } catch {}
+    });
+  });
+</script>

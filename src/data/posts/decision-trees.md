@@ -4,7 +4,7 @@ description: "Understand recursive splits, impurity, overfitting and why tree en
 domain: "Machine Learning"
 topic: "Trees"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "High"

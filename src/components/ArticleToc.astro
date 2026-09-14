@@ -1,0 +1,37 @@
+---
+import TextSize from './TextSize.astro';
+
+interface Heading { depth: number; slug: string; text: string; }
+interface Props {
+  headings: Heading[];
+  variant?: 'rail' | 'inline';
+}
+const { headings, variant = 'rail' } = Astro.props;
+---
+{variant === 'rail' ? (
+  <aside class="doc-toc" aria-label="On this page">
+    <div class="doc-toc-inner">
+      <strong class="doc-toc-title">
+        <span class="lang-en">On this page</span><span class="lang-vi">Mục lục bài viết</span>
+      </strong>
+      <TextSize />
+      <nav>
+        {headings.map(h => (
+          <a class:list={['toc-link', `toc-h${h.depth}`]} href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
+        ))}
+      </nav>
+    </div>
+  </aside>
+) : (
+  <details class="toc-details">
+    <summary>
+      <span class="lang-en">On this page</span><span class="lang-vi">Mục lục bài viết</span>
+      <span class="toc-count">{headings.length}</span>
+    </summary>
+    <nav>
+      {headings.map(h => (
+        <a class:list={['toc-link', `toc-h${h.depth}`]} href={`#${h.slug}`}>{h.text}</a>
+      ))}
+    </nav>
+  </details>
+)}

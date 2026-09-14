@@ -4,7 +4,7 @@ description: "A clean model of supervised learning: data, hypothesis, objective,
 domain: "Machine Learning"
 topic: "Learning"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

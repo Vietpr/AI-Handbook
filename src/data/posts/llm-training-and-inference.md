@@ -4,7 +4,7 @@ description: "Pretraining, instruction tuning and next-token generation explaine
 domain: "Generative AI"
 topic: "LLMs"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "High"

@@ -1,15 +1,24 @@
 {
-  "name": "ai-field-notes",
+  "name": "technical-handbook",
   "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "writer": "node writer/server.mjs",
+    "writer:init": "node writer/init.mjs"
   },
   "dependencies": {
-    "astro": "^7.2.0"
+    "@astrojs/markdown-remark": "^7.2.4",
+    "astro": "^7.2.0",
+    "js-yaml": "^4.1.0",
+    "katex": "^0.18.5",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
-  "devDependencies": {}
+  "engines": {
+    "node": ">=22.18.0"
+  }
 }

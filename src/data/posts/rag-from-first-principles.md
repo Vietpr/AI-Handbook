@@ -4,7 +4,7 @@ description: "A clean architecture for retrieval-augmented generation, what retr
 domain: "Generative AI"
 topic: "RAG"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "Essential"

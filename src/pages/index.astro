@@ -1,24 +1,146 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../config';
+import { KNOWLEDGE } from '../data/knowledge';
+import { ALGORITHM_GUIDES } from '../data/algorithms';
+import { withBase } from '../lib/url';
+import { domainKey } from '../lib/labels';
+import { groupsOf, langClass, countArticles, byOrder } from '../lib/translations';
+
+const all = await getCollection('posts', ({ data }) => !data.draft);
+const handbook = all.filter(post => post.data.section === 'Learn');
+const algorithmPosts = all.filter(post => post.data.section === 'Algorithms');
+const blogPosts = all.filter(post => post.data.section === 'Blog');
+
+/* Each entry below is a group: one lesson, in one or two languages. The list
+   renders every version and CSS shows the one matching the interface. */
+const startHere = KNOWLEDGE
+  .map(section => ({
+    section,
+    versions: groupsOf(handbook.filter(post => domainKey(post.data.domain) === section.id).sort(byOrder))[0] ?? [],
+  }))
+  .filter(entry => entry.versions.length > 0);
+
+const featured = groupsOf(handbook.filter(post => post.data.featured)).slice(0, 6);
+
+const sections = [
+  {
+    href: '/learn',
+    en: 'Learn', vi: 'Học AI',
+    enBody: 'The handbook: six chapters from math foundations to production AI systems.',
+    viBody: 'Handbook gồm sáu chương, đi từ nền tảng toán học tới hệ thống AI vận hành thực tế.',
+    count: countArticles(handbook),
+    enUnit: 'articles', viUnit: 'bài viết',
+  },
+  {
+    href: '/algorithms',
+    en: 'Algorithms', vi: 'Thuật toán',
+    enBody: 'Data structures, problem-solving patterns and worked LeetCode solutions.',
+    viBody: 'Cấu trúc dữ liệu, các pattern giải bài và lời giải LeetCode có phân tích.',
+    count: countArticles(algorithmPosts) || ALGORITHM_GUIDES.length,
+    enUnit: algorithmPosts.length ? 'articles' : 'topics planned',
+    viUnit: algorithmPosts.length ? 'bài viết' : 'chủ đề dự kiến',
+  },
+  {
+    href: '/blog',
+    en: 'Blog', vi: 'Blog',
+    enBody: 'Deep dives into real-world AI systems, papers, experiments, and engineering lessons.',
+    viBody: 'Các bài đào sâu về hệ thống AI thực tế, paper, thử nghiệm và những bài học engineering.',
+    count: countArticles(blogPosts),
+    enUnit: 'posts', viUnit: 'bài viết',
+  },
+];
 ---
 <BaseLayout>
-  <section class="home-about shell">
-    <div class="home-about-copy">
-      <h1>
-        <span class="lang-en">Hi, I'm {SITE.author}.</span>
-        <span class="lang-vi">Chào bạn, tôi là {SITE.author}.</span>
-      </h1>
-      <p class="home-role">{SITE.role}</p>
-      <p class="lang-en">
-        I write clear, practical notes on Generative AI, computer vision, and AI systems.
-      </p>
-      <p class="lang-vi">
-        Mình viết những ghi chép rõ ràng, thực tế về Generative AI, computer vision và các hệ thống AI.
-      </p>
-      <div class="home-links">
-        <a href={SITE.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a>
-      </div>
+  <section class="home-intro shell">
+    <h1>
+      <span class="lang-en">Notes for understanding AI, one layer at a time.</span>
+      <span class="lang-vi">Ghi chép để hiểu AI, từng lớp một.</span>
+    </h1>
+    <p class="home-lede">
+      <span class="lang-en">
+        I'm {SITE.author}, an AI engineer writing clear, practical notes on generative AI,
+        computer vision, and the systems behind them - the explanations I wish I had when I was
+        learning each idea.
+      </span>
+      <span class="lang-vi">
+        Mình là {SITE.author}, một kỹ sư AI viết những ghi chép rõ ràng, thực tế về generative AI,
+        computer vision và các hệ thống phía sau chúng - những lời giải thích mình ước đã có khi học từng ý tưởng.
+      </span>
+    </p>
+    <div class="home-actions">
+      <a class="button primary" href={withBase('/learn')}>
+        <span class="lang-en">Start reading</span><span class="lang-vi">Bắt đầu đọc</span><span aria-hidden="true">→</span>
+      </a>
+      <button class="button search-trigger" type="button">
+        <span class="lang-en">Search articles</span><span class="lang-vi">Tìm bài viết</span><kbd>⌘K</kbd>
+      </button>
     </div>
   </section>
+
+  <section class="shell home-block">
+    <div class="entry-grid">
+      {sections.map(section => (
+        <a class="entry-card" href={withBase(section.href)}>
+          <h2><span class="lang-en">{section.en}</span><span class="lang-vi">{section.vi}</span></h2>
+          <p><span class="lang-en">{section.enBody}</span><span class="lang-vi">{section.viBody}</span></p>
+          <span class="entry-meta">
+            {section.count > 0 && <span>{section.count} <span class="lang-en">{section.enUnit}</span><span class="lang-vi">{section.viUnit}</span></span>}
+            <i aria-hidden="true">→</i>
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {startHere.length > 0 && (
+    <section class="shell home-block">
+      <header class="block-header">
+        <h2><span class="lang-en">Start here</span><span class="lang-vi">Bắt đầu từ đây</span></h2>
+        <p>
+          <span class="lang-en">The opening lesson of each chapter, in the order I'd read them.</span>
+          <span class="lang-vi">Bài mở đầu của từng chương, theo đúng thứ tự mình sẽ đọc.</span>
+        </p>
+      </header>
+      <ol class="start-list">
+        {startHere.map(({ section, versions }) => versions.map(post => (
+          <li class={langClass(post, handbook)}>
+            <a href={withBase(`/articles/${post.id}`)}>
+              <span class="start-index">{section.index}</span>
+              <span class="start-body">
+                <span class="start-chapter">
+                  <span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span>
+                </span>
+                <strong>{post.data.title}</strong>
+                <span class="start-desc">{post.data.description}</span>
+              </span>
+              <i aria-hidden="true">→</i>
+            </a>
+          </li>
+        )))}
+      </ol>
+    </section>
+  )}
+
+  {featured.length > 0 && (
+    <section class="shell home-block home-block-last">
+      <header class="block-header">
+        <h2><span class="lang-en">Featured</span><span class="lang-vi">Bài nổi bật</span></h2>
+        <p>
+          <span class="lang-en">Longer pieces I keep coming back to.</span>
+          <span class="lang-vi">Những bài dài mình vẫn thường quay lại đọc.</span>
+        </p>
+      </header>
+      <div class="card-grid">
+        {featured.map(group => group.map(post => (
+          <a class:list={['post-card', langClass(post, handbook)]} href={withBase(`/articles/${post.id}`)}>
+            <span class="post-card-domain">{post.data.domain ?? post.data.topic ?? post.data.section}</span>
+            <strong>{post.data.title}</strong>
+            <p>{post.data.description}</p>
+          </a>
+        )))}
+      </div>
+    </section>
+  )}
 </BaseLayout>

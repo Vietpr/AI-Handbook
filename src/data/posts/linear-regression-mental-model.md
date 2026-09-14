@@ -4,7 +4,7 @@ description: "Use linear regression to understand features, parameters, residual
 domain: "Machine Learning"
 topic: "Regression"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "High"

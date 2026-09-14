@@ -4,7 +4,7 @@ description: "A retrieval mental model for combining exact lexical evidence with
 domain: "AI Systems"
 topic: "Retrieval"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 pubDate: 2026-08-17

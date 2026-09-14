@@ -1,9 +1,14 @@
 ---
+import 'katex/dist/katex.min.css';
 import BaseLayout from './BaseLayout.astro';
 import HandbookSidebar from '../components/HandbookSidebar.astro';
+import ArticleToc from '../components/ArticleToc.astro';
+import TextSize from '../components/TextSize.astro';
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 import { withBase } from '../lib/url';
+import { domainKey, TYPE_VI } from '../lib/labels';
+import { translationOf, pickFor, byOrder } from '../lib/translations';
 
 interface Heading { depth: number; slug: string; text: string; }
 interface Props {
@@ -13,71 +18,396 @@ interface Props {
   next?: CollectionEntry<'posts'>;
 }
 const { post, headings, previous, next } = Astro.props;
-const locale = post.data.language === 'vi' ? 'vi-VN' : 'en-US';
+const lang = post.data.language;
+const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
 const date = post.data.pubDate.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' });
-const domainKey = (domain: string) => domain.toLowerCase().replaceAll(' ', '-');
-const handbookPosts = post.data.section === 'Handbook'
-  ? await getCollection('posts', ({ data }) => !data.draft && data.section === 'Handbook')
-  : [];
+
+/* The same article in the other language, when the author wrote one. */
+const published = await getCollection('posts', ({ data }) => !data.draft);
+const translation = translationOf(post, published);
+const alternates = {
+  [lang]: withBase(`/articles/${post.id}`),
+  ...(translation ? { [translation.data.language]: withBase(`/articles/${translation.id}`) } : {}),
+};
+
+const isHandbook = post.data.section === 'Learn';
+const handbookPosts = isHandbook ? published.filter(item => item.data.section === 'Learn') : [];
+/* The in-page chapter list is static, so it shows the chapter in this
+   article's language: one entry per lesson, translated where possible. */
+const chapterPosts = pickFor(lang, handbookPosts
+  .filter(item => domainKey(item.data.domain) === domainKey(post.data.domain))
+  .sort(byOrder));
+
 const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
-const back = post.data.section === 'Algorithm' ? '/algorithms' : post.data.section === 'Blog' ? '/blog' : '/learn';
-const backLabel = post.data.section === 'Algorithm' ? 'Algorithms' : post.data.section === 'Blog' ? 'Blog' : 'AI Handbook';
+const showToc = toc.filter(h => h.depth === 2).length > 1;
+const back = post.data.section === 'Algorithms' ? '/algorithms' : post.data.section === 'Blog' ? '/blog' : '/learn';
+const backLabel = post.data.section === 'Algorithms' ? 'Algorithms' : post.data.section === 'Blog' ? 'Blog' : 'Learn';
+const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.data.section === 'Blog' ? 'Blog' : 'Học AI';
 ---
-<BaseLayout title={post.data.title} description={post.data.description}>
-  {post.data.section === 'Handbook' ? (
+<BaseLayout title={post.data.title} description={post.data.description} lang={lang} alternates={alternates}>
+  <div class="read-progress" aria-hidden="true"><span></span></div>
+
+  {isHandbook ? (
     <div class="handbook-layout shell-wide article-handbook-layout">
       <HandbookSidebar posts={handbookPosts} currentDomain={domainKey(post.data.domain)} currentPostId={post.id} />
-      <main class="doc-article">
-        <div class="breadcrumbs">
-          <a href={withBase('/learn')}>AI Handbook</a><span>›</span>
-          <a href={withBase(`/learn/${domainKey(post.data.domain)}`)}>{post.data.domain}</a><span>›</span>
-          <span>{post.data.title}</span>
-        </div>
+
+      <article class="doc-article">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href={withBase('/learn')}><span class="lang-en">Learn</span><span class="lang-vi">Học AI</span></a><span aria-hidden="true">›</span>
+          <a href={withBase(`/learn/${domainKey(post.data.domain)}`)}>{post.data.domain}</a><span aria-hidden="true">›</span>
+          <span aria-current="page">{post.data.title}</span>
+        </nav>
+
+        {chapterPosts.length > 1 && (
+          <details class="chapter-nav">
+            <summary>
+              <span class="lang-en">All lessons in {post.data.domain}</span>
+              <span class="lang-vi">Tất cả bài trong chương {post.data.domain}</span>
+              <span class="toc-count">{chapterPosts.length}</span>
+            </summary>
+            <nav>
+              {chapterPosts.map((item, i) => (
+                <a class:list={[{ active: item.id === post.id }]} href={withBase(`/articles/${item.id}`)}>
+                  <span>{String(i + 1).padStart(2, '0')}</span>{item.data.title}
+                </a>
+              ))}
+            </nav>
+          </details>
+        )}
+
         <header class="doc-header">
           <h1>{post.data.title}</h1>
           <p class="doc-dek">{post.data.description}</p>
-          <div class="doc-meta"><span>{post.data.level}</span><span>{post.data.readingTime} min</span><span>{date}</span></div>
-          {post.data.prerequisites.length > 0 && (
-            <div class="doc-prereqs"><strong><span class="lang-en">Useful before this:</span><span class="lang-vi">Nên biết trước:</span></strong> {post.data.prerequisites.join(' · ')}</div>
-          )}
+          <div class="doc-meta">
+            <span>{date}</span>
+            <TextSize />
+          </div>
         </header>
-        {toc.length > 2 && (
-          <nav class="inline-toc" aria-label="On this page">
-            <strong><span class="lang-en">On this page</span><span class="lang-vi">Trong bài này</span></strong>
-            {toc.filter(h => h.depth === 2).map(h => <a href={`#${h.slug}`}>{h.text}</a>)}
-          </nav>
-        )}
+
+        {showToc && <ArticleToc headings={toc} variant="inline" />}
+
         <div class="prose"><slot /></div>
+
         {(previous || next) && (
           <nav class="article-sequence" aria-label="Article sequence">
-            {previous ? <a href={withBase(`/articles/${previous.id}`)}><span>← <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span><strong>{previous.data.title}</strong></a> : <div></div>}
-            {next ? <a class="next" href={withBase(`/articles/${next.id}`)}><span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> →</span><strong>{next.data.title}</strong></a> : <div></div>}
+            {previous ? (
+              <a href={withBase(`/articles/${previous.id}`)}>
+                <span><span aria-hidden="true">←</span> <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span>
+                <strong>{previous.data.title}</strong>
+              </a>
+            ) : <div></div>}
+            {next ? (
+              <a class="next" href={withBase(`/articles/${next.id}`)}>
+                <span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> <span aria-hidden="true">→</span></span>
+                <strong>{next.data.title}</strong>
+              </a>
+            ) : <div></div>}
           </nav>
         )}
-      </main>
+      </article>
+
+      {showToc && <ArticleToc headings={toc} variant="rail" />}
     </div>
   ) : (
     <article class="standalone-article shell-reading">
-      <div class="breadcrumbs"><a href={withBase(back)}>← {backLabel}</a></div>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href={withBase(back)}>
+          <span aria-hidden="true">←</span> <span class="lang-en">{backLabel}</span><span class="lang-vi">{backLabelVi}</span>
+        </a>
+      </nav>
       <header class="doc-header">
-        <p class="section-label">{post.data.type}</p>
+        {post.data.section === 'Algorithms' && (
+          /* Only Algorithms has two kinds worth telling apart; on Blog the label
+             would say "Concept" on every single post. */
+          <p class="section-label">
+            <span class="lang-en">{post.data.type}</span><span class="lang-vi">{TYPE_VI[post.data.type] ?? post.data.type}</span>
+          </p>
+        )}
         <h1>{post.data.title}</h1>
         <p class="doc-dek">{post.data.description}</p>
-        <div class="doc-meta"><span>Pham Van Viet</span><span>{date}</span><span>{post.data.readingTime} min</span></div>
+        <div class="doc-meta">
+          <span>{date}</span>
+          <TextSize />
+        </div>
       </header>
-      {toc.length > 2 && (
-        <nav class="inline-toc" aria-label="On this page">
-          <strong><span class="lang-en">On this page</span><span class="lang-vi">Trong bài này</span></strong>
-          {toc.filter(h => h.depth === 2).map(h => <a href={`#${h.slug}`}>{h.text}</a>)}
-        </nav>
-      )}
+
+      {showToc && <ArticleToc headings={toc} variant="inline" />}
+
       <div class="prose"><slot /></div>
+
       {(previous || next) && (
         <nav class="article-sequence" aria-label="Article sequence">
-          {previous ? <a href={withBase(`/articles/${previous.id}`)}><span>← <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span><strong>{previous.data.title}</strong></a> : <div></div>}
-          {next ? <a class="next" href={withBase(`/articles/${next.id}`)}><span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> →</span><strong>{next.data.title}</strong></a> : <div></div>}
+          {previous ? (
+            <a href={withBase(`/articles/${previous.id}`)}>
+              <span><span aria-hidden="true">←</span> <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span>
+              <strong>{previous.data.title}</strong>
+            </a>
+          ) : <div></div>}
+          {next ? (
+            <a class="next" href={withBase(`/articles/${next.id}`)}>
+              <span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> <span aria-hidden="true">→</span></span>
+              <strong>{next.data.title}</strong>
+            </a>
+          ) : <div></div>}
         </nav>
       )}
     </article>
   )}
+
+  <button class="to-top" type="button" aria-label="Back to top" hidden><span aria-hidden="true">↑</span></button>
 </BaseLayout>
+
+<script>
+  const prose = document.querySelector('.prose');
+
+  /* Reading progress ------------------------------------------------------ */
+  const progress = document.querySelector<HTMLElement>('.read-progress span');
+  const toTop = document.querySelector<HTMLButtonElement>('.to-top');
+
+  function onScroll() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    if (progress) progress.style.transform = `scaleX(${ratio})`;
+    if (toTop) toTop.hidden = window.scrollY < 600;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* Table of contents scroll-spy ------------------------------------------ */
+  const railLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.doc-toc [data-toc-link]'));
+  if (railLinks.length && prose) {
+    const targets = railLinks
+      .map(link => document.getElementById(link.dataset.tocLink || ''))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    const setActive = (slug: string) => {
+      railLinks.forEach(link => link.classList.toggle('active', link.dataset.tocLink === slug));
+    };
+
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (visible) {
+        setActive(visible.target.id);
+        return;
+      }
+      // Nothing in the band: fall back to the last heading scrolled past.
+      const passed = targets.filter(el => el.getBoundingClientRect().top < 120).pop();
+      if (passed) setActive(passed.id);
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+
+    targets.forEach(el => observer.observe(el));
+  }
+
+  /* Copy button on every code block --------------------------------------- */
+  /* Labels ship in both languages so the EN/VI switch keeps working after the
+     button has already been created. */
+  const label = (en: string, vi: string) =>
+    `<span class="lang-en">${en}</span><span class="lang-vi">${vi}</span>`;
+
+  prose?.querySelectorAll('pre:not([data-language="mermaid"])').forEach(pre => {
+    const wrap = document.createElement('div');
+    wrap.className = 'code-block';
+    pre.parentNode?.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy';
+    button.dataset.state = 'idle';
+    button.innerHTML =
+      `<span class="copy-idle">${label('Copy', 'Sao chép')}</span>` +
+      `<span class="copy-done">${label('Copied', 'Đã chép')}</span>` +
+      `<span class="copy-fail">${label('Failed', 'Lỗi')}</span>`;
+    wrap.appendChild(button);
+
+    let timer: ReturnType<typeof setTimeout>;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+        button.dataset.state = 'done';
+      } catch {
+        button.dataset.state = 'fail';
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => { button.dataset.state = 'idle'; }, 1600);
+    });
+  });
+
+  /* Mermaid diagrams ------------------------------------------------------ */
+  /* A ```mermaid fence arrives as a Shiki block tagged data-language. The
+     library is loaded only on pages that have one, and the diagrams are drawn
+     again when the theme flips because Mermaid bakes colours into the SVG. */
+  const diagrams = Array.from(prose?.querySelectorAll<HTMLPreElement>('pre[data-language="mermaid"]') ?? []);
+  if (diagrams.length) {
+    const sources = diagrams.map(pre => pre.textContent ?? '');
+    diagrams.forEach(pre => { pre.classList.add('mermaid'); pre.removeAttribute('style'); });
+    const root = document.documentElement;
+    const vi = root.lang === 'vi';
+    let mermaid: any;
+
+    /* Lightbox: a copy of the drawn SVG on a backdrop with zoom controls.
+       100% is the diagram's natural size (16px labels); it opens at whichever
+       is larger, fit-to-screen or 100%, so labels are never tiny. The copy is
+       taken at click time so it always matches the current theme. */
+    let box: HTMLDivElement | null = null;
+    const closeBox = () => {
+      if (!box) return;
+      box.remove(); box = null;
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeBox(); };
+    const enlarge = (pre: HTMLPreElement) => {
+      const svg = pre.querySelector('svg');
+      if (!svg || box) return;
+      const natural = parseFloat(svg.style.maxWidth || '') || svg.getBoundingClientRect().width || 900;
+      const vb = svg.viewBox.baseVal;
+      const aspect = vb && vb.width ? vb.height / vb.width : 0.5;
+
+      box = document.createElement('div');
+      box.className = 'diagram-lightbox';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      box.setAttribute('aria-label', vi ? 'Sơ đồ phóng to' : 'Enlarged diagram');
+      const panel = document.createElement('div');
+      panel.className = 'diagram-lightbox-panel';
+      const copy = svg.cloneNode(true) as SVGSVGElement;
+      copy.removeAttribute('style');
+      copy.removeAttribute('width');
+      copy.removeAttribute('height');
+      panel.appendChild(copy);
+
+      const bar = document.createElement('div');
+      bar.className = 'diagram-lightbox-bar';
+      const mk = (label: string, title: string, cls = '') => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'diagram-lightbox-btn ' + cls; b.textContent = label; b.title = title; b.setAttribute('aria-label', title);
+        return b;
+      };
+      const minus = mk('−', vi ? 'Thu nhỏ' : 'Zoom out');
+      const pct = mk('100%', vi ? 'Về 100%' : 'Reset to 100%', 'pct');
+      const plus = mk('+', vi ? 'Phóng to' : 'Zoom in');
+      const fitBtn = mk(vi ? 'Vừa khung' : 'Fit', vi ? 'Vừa màn hình' : 'Fit to screen', 'fit');
+      const close = mk('', vi ? 'Đóng' : 'Close', 'close');
+      close.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      bar.append(minus, pct, plus, fitBtn, close);
+
+      const hint = document.createElement('p');
+      hint.className = 'diagram-lightbox-hint';
+      hint.textContent = vi
+        ? 'Ctrl + lăn chuột hoặc chụm hai ngón để zoom · kéo để di chuyển · Esc để đóng'
+        : 'Ctrl + scroll or pinch to zoom · drag to pan · Esc to close';
+      box.append(bar, panel, hint);
+
+      const fitScale = () => {
+        const w = panel.clientWidth - 40 || Math.min(innerWidth * 0.96, 1500) - 40;
+        const h = innerHeight - 170;
+        return Math.min(w / natural, h / (natural * aspect));
+      };
+      let scale = 1;
+      const apply = (next: number, cx?: number, cy?: number) => {
+        const clamped = Math.min(4, Math.max(0.4, next));
+        const ratio = clamped / scale;
+        /* keep the point under the cursor (or the centre) in place */
+        const px = cx ?? panel.clientWidth / 2, py = cy ?? panel.clientHeight / 2;
+        const sx = panel.scrollLeft, sy = panel.scrollTop;
+        scale = clamped;
+        copy.style.width = `${Math.round(natural * scale)}px`;
+        panel.scrollLeft = (sx + px) * ratio - px;
+        panel.scrollTop = (sy + py) * ratio - py;
+        pct.textContent = `${Math.round(scale * 100)}%`;
+      };
+      minus.onclick = () => apply(scale / 1.25);
+      plus.onclick = () => apply(scale * 1.25);
+      pct.onclick = () => apply(1);
+      fitBtn.onclick = () => apply(fitScale());
+      close.onclick = closeBox;
+
+      /* ctrl/⌘ + wheel and trackpad pinch zoom around the cursor */
+      panel.addEventListener('wheel', (e) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        const r = panel.getBoundingClientRect();
+        apply(scale * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top);
+      }, { passive: false });
+
+      /* drag to pan with a mouse; touch uses native scrolling and pinch */
+      let drag: { x: number; y: number; sx: number; sy: number } | null = null;
+      panel.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = { x: e.clientX, y: e.clientY, sx: panel.scrollLeft, sy: panel.scrollTop };
+        panel.setPointerCapture(e.pointerId);
+        panel.classList.add('dragging');
+      });
+      panel.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        panel.scrollLeft = drag.sx - (e.clientX - drag.x);
+        panel.scrollTop = drag.sy - (e.clientY - drag.y);
+      });
+      const endDrag = () => { drag = null; panel.classList.remove('dragging'); };
+      panel.addEventListener('pointerup', endDrag);
+      panel.addEventListener('pointercancel', endDrag);
+
+      box.addEventListener('click', (e) => { if (e.target === box || e.target === hint) closeBox(); });
+      document.body.appendChild(box);
+      document.body.style.overflow = 'hidden';
+      document.addEventListener('keydown', onKey);
+      apply(Math.max(fitScale(), 1));
+      /* centre a diagram that starts wider than the panel */
+      panel.scrollLeft = Math.max(0, (panel.scrollWidth - panel.clientWidth) / 2);
+      close.focus();
+    };
+
+    /* A plain script tag rather than a dynamic import(): Vite rewrites
+       import() with a preload helper that is left broken in inlined scripts. */
+    const load = () => new Promise<any>((resolve, reject) => {
+      const w = window as any;
+      if (w.mermaid) return resolve(w.mermaid);
+      const tag = document.createElement('script');
+      tag.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+      tag.onload = () => (w.mermaid ? resolve(w.mermaid) : reject(new Error('mermaid did not load')));
+      tag.onerror = () => reject(new Error('mermaid script failed to load'));
+      document.head.appendChild(tag);
+    });
+
+    const draw = async () => {
+      if (!mermaid) mermaid = await load();
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: root.dataset.theme === 'dark' ? 'dark' : 'neutral',
+        fontFamily: getComputedStyle(document.body).fontFamily,
+      });
+      for (const [i, pre] of diagrams.entries()) {
+        try {
+          const { svg } = await mermaid.render(`mermaid-${i}-${Date.now()}`, sources[i]);
+          pre.innerHTML = svg;
+          pre.classList.add('rendered');
+          /* Mermaid caps the SVG at its natural width and lets it shrink to fit.
+             On a phone a wide diagram would shrink past legibility, so keep a
+             floor and let the block scroll sideways instead. */
+          const drawn = pre.querySelector('svg');
+          const natural = parseFloat(drawn?.style.maxWidth || '');
+          if (drawn && natural) drawn.style.minWidth = `${Math.min(natural, 520)}px`;
+          /* Click (or Enter) opens the diagram in a full-screen lightbox. */
+          pre.tabIndex = 0;
+          pre.setAttribute('role', 'button');
+          pre.title = vi ? 'Bấm để phóng to' : 'Click to enlarge';
+          pre.onclick = () => enlarge(pre);
+          pre.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enlarge(pre); } };
+        } catch {
+          pre.textContent = sources[i];
+        }
+      }
+    };
+
+    const report = (error: unknown) => console.warn('Mermaid diagrams were not drawn:', error);
+    draw().catch(report);
+    new MutationObserver(() => { draw().catch(report); })
+      .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+</script>

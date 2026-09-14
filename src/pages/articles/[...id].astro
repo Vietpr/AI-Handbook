@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { pickFor, byOrder } from '../../lib/translations';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -12,9 +13,11 @@ const { Content, headings } = await render(post);
 
 let previous = undefined;
 let next = undefined;
-if (post.data.section === 'Handbook' || post.data.section === 'Algorithm') {
-  const siblings = (await getCollection('posts', ({ data }) => !data.draft && data.section === post.data.section && data.domain === post.data.domain))
-    .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+if (post.data.section === 'Learn' || post.data.section === 'Algorithms') {
+  /* Previous / next walk the chapter in this article's language, so a reader
+     of the Vietnamese version is handed the next Vietnamese lesson. */
+  const siblings = pickFor(post.data.language, (await getCollection('posts', ({ data }) =>
+    !data.draft && data.section === post.data.section && data.domain === post.data.domain)).sort(byOrder));
   const index = siblings.findIndex(item => item.id === post.id);
   previous = index > 0 ? siblings[index - 1] : undefined;
   next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;

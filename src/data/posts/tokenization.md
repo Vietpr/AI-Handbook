@@ -4,7 +4,7 @@ description: "Why language models operate on tokens rather than words, how subwo
 domain: "Generative AI"
 topic: "Tokenization"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Beginner"
 priority: "Essential"

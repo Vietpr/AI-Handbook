@@ -4,7 +4,7 @@ description: "How embeddings, attention, feed-forward layers, residual paths and
 domain: "Generative AI"
 topic: "Transformers"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "Essential"

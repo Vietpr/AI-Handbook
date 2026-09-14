@@ -4,7 +4,7 @@ description: "A geometric and operational explanation of queries, keys, values a
 domain: "Generative AI"
 topic: "Attention"
 type: "Concept"
-section: "Handbook"
+section: "Learn"
 language: "en"
 level: "Intermediate"
 priority: "Essential"
