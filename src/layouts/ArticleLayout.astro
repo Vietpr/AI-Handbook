@@ -158,7 +158,14 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
 </BaseLayout>
 
 <script>
+  let articleController: AbortController | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+  articleController?.abort();
+  articleController = new AbortController();
+  const { signal } = articleController;
   const prose = document.querySelector('.prose');
+  if (!prose) return;
 
   /* Reading progress ------------------------------------------------------ */
   const progress = document.querySelector<HTMLElement>('.read-progress span');
@@ -170,11 +177,11 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
     if (progress) progress.style.transform = `scaleX(${ratio})`;
     if (toTop) toTop.hidden = window.scrollY < 600;
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
+  window.addEventListener('scroll', onScroll, { passive: true, signal });
+  window.addEventListener('resize', onScroll, { signal });
   onScroll();
 
-  toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }), { signal });
 
   /* Table of contents scroll-spy ------------------------------------------ */
   const railLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.doc-toc [data-toc-link]'));
@@ -201,6 +208,7 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
     }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
 
     targets.forEach(el => observer.observe(el));
+    signal.addEventListener('abort', () => observer.disconnect(), { once: true });
   }
 
   /* Copy button on every code block --------------------------------------- */
@@ -235,7 +243,7 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
       }
       clearTimeout(timer);
       timer = setTimeout(() => { button.dataset.state = 'idle'; }, 1600);
-    });
+    }, { signal });
   });
 
   /* Mermaid diagrams ------------------------------------------------------ */
@@ -262,6 +270,7 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
       document.removeEventListener('keydown', onKey);
     };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeBox(); };
+    signal.addEventListener('abort', closeBox, { once: true });
     const enlarge = (pre: HTMLPreElement) => {
       const svg = pre.querySelector('svg');
       if (!svg || box) return;
@@ -376,7 +385,9 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
     });
 
     const draw = async () => {
+      if (signal.aborted) return;
       if (!mermaid) mermaid = await load();
+      if (signal.aborted) return;
       mermaid.initialize({
         startOnLoad: false,
         theme: root.dataset.theme === 'dark' ? 'dark' : 'neutral',
@@ -407,7 +418,9 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
 
     const report = (error: unknown) => console.warn('Mermaid diagrams were not drawn:', error);
     draw().catch(report);
-    new MutationObserver(() => { draw().catch(report); })
-      .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    const themeObserver = new MutationObserver(() => { draw().catch(report); });
+    themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    signal.addEventListener('abort', () => themeObserver.disconnect(), { once: true });
   }
+  });
 </script>

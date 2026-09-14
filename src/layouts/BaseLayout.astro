@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import { ClientRouter } from 'astro:transitions';
 import { SITE } from '../config';
 import { withBase } from '../lib/url';
 
@@ -32,6 +33,7 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{pageTitle}</title>
+    <ClientRouter />
     {alternates && Object.keys(alternates).length > 1 && (
       <>
         {Object.entries(alternates).map(([code, path]) => (
@@ -43,23 +45,32 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
     <script is:inline>
       (() => {
         const root = document.documentElement;
-        const savedTheme = localStorage.getItem('theme');
-        const dark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.dataset.theme = dark ? 'dark' : 'light';
+        const applyPreferences = () => {
+          const savedTheme = localStorage.getItem('theme');
+          const dark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          root.dataset.theme = dark ? 'dark' : 'light';
 
-        /* Article pages arrive with their language fixed in the markup. Everywhere
-           else the reader's choice wins, English until they press VI themselves;
-           reading a Vietnamese article does not change that choice. */
-        if (!('langLocked' in root.dataset)) {
-          const saved = localStorage.getItem('language');
-          const lang = saved === 'vi' ? 'vi' : 'en';
-          root.dataset.lang = lang;
-          root.lang = lang;
+          /* Article pages arrive with their language fixed in the markup. Everywhere
+             else the reader's choice wins, English until they press VI themselves;
+             reading a Vietnamese article does not change that choice. */
+          if (!('langLocked' in root.dataset)) {
+            const saved = localStorage.getItem('language');
+            const lang = saved === 'vi' ? 'vi' : 'en';
+            root.dataset.lang = lang;
+            root.lang = lang;
+          }
+
+          const savedSize = Number(localStorage.getItem('text-size'));
+          root.dataset.textSize = savedSize >= 1 && savedSize <= 4 ? String(savedSize) : '2';
+          if (localStorage.getItem('sidebar') === 'closed') root.dataset.sidebar = 'closed';
+          else delete root.dataset.sidebar;
+        };
+
+        applyPreferences();
+        if (!window.__handbookPreferencesBound) {
+          document.addEventListener('astro:after-swap', applyPreferences);
+          window.__handbookPreferencesBound = true;
         }
-
-        const savedSize = Number(localStorage.getItem('text-size'));
-        root.dataset.textSize = savedSize >= 1 && savedSize <= 4 ? String(savedSize) : '2';
-        if (localStorage.getItem('sidebar') === 'closed') root.dataset.sidebar = 'closed';
       })();
     </script>
   </head>
