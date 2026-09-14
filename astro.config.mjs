@@ -9,6 +9,10 @@ export default defineConfig({
   output: 'static',
   site,
   base,
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'viewport',
+  },
   markdown: {
     /* $…$ and $$…$$ render to KaTeX HTML at build time; the CSS is imported
        by ArticleLayout. Needs @astrojs/markdown-remark for the unified pipeline. */

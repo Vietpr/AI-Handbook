@@ -17,31 +17,38 @@
   const MIN = 1;
   const MAX = 4;
   const DEFAULT = 2;
-  const root = document.documentElement;
-  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-text-step]'));
+  let textSizeController: AbortController | undefined;
 
-  const current = () => {
-    const value = Number(root.dataset.textSize);
-    return Number.isFinite(value) ? Math.min(MAX, Math.max(MIN, value)) : DEFAULT;
-  };
+  document.addEventListener('astro:page-load', () => {
+    textSizeController?.abort();
+    textSizeController = new AbortController();
+    const { signal } = textSizeController;
+    const root = document.documentElement;
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-text-step]'));
 
-  function apply(next: number) {
-    const size = Math.min(MAX, Math.max(MIN, next));
-    root.dataset.textSize = String(size);
-    try {
-      localStorage.setItem('text-size', String(size));
-    } catch {
-      /* Private mode: the choice just doesn't persist. */
+    const current = () => {
+      const value = Number(root.dataset.textSize);
+      return Number.isFinite(value) ? Math.min(MAX, Math.max(MIN, value)) : DEFAULT;
+    };
+
+    function apply(next: number) {
+      const size = Math.min(MAX, Math.max(MIN, next));
+      root.dataset.textSize = String(size);
+      try {
+        localStorage.setItem('text-size', String(size));
+      } catch {
+        /* Private mode: the choice just doesn't persist. */
+      }
+      buttons.forEach(button => {
+        const step = Number(button.dataset.textStep);
+        button.disabled = step < 0 ? size === MIN : size === MAX;
+      });
     }
+
     buttons.forEach(button => {
-      const step = Number(button.dataset.textStep);
-      button.disabled = step < 0 ? size === MIN : size === MAX;
+      button.addEventListener('click', () => apply(current() + Number(button.dataset.textStep)), { signal });
     });
-  }
 
-  buttons.forEach(button => {
-    button.addEventListener('click', () => apply(current() + Number(button.dataset.textStep)));
+    apply(current());
   });
-
-  apply(current());
 </script>

@@ -71,14 +71,22 @@ const { posts, currentDomain = '', currentPostId = '' } = Astro.props;
 </aside>
 
 <script>
-  /* The choice is remembered and restored before first paint by BaseLayout. */
-  const root = document.documentElement;
-  document.querySelectorAll<HTMLButtonElement>('[data-sidebar-toggle]').forEach(button => {
-    button.addEventListener('click', () => {
-      const closed = root.dataset.sidebar !== 'closed';
-      if (closed) root.dataset.sidebar = 'closed';
-      else delete root.dataset.sidebar;
-      try { localStorage.setItem('sidebar', closed ? 'closed' : 'open'); } catch {}
+  let sidebarController: AbortController | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+    sidebarController?.abort();
+    sidebarController = new AbortController();
+    const { signal } = sidebarController;
+
+    /* The choice is remembered and restored before first paint by BaseLayout. */
+    const root = document.documentElement;
+    document.querySelectorAll<HTMLButtonElement>('[data-sidebar-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const closed = root.dataset.sidebar !== 'closed';
+        if (closed) root.dataset.sidebar = 'closed';
+        else delete root.dataset.sidebar;
+        try { localStorage.setItem('sidebar', closed ? 'closed' : 'open'); } catch {}
+      }, { signal });
     });
   });
 </script>

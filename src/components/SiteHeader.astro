@@ -108,6 +108,12 @@ const LANGUAGES = [
 </div>
 
 <script>
+  let siteHeaderController: AbortController | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+  siteHeaderController?.abort();
+  siteHeaderController = new AbortController();
+  const { signal } = siteHeaderController;
   const root = document.documentElement;
   const getLang = () => (root.dataset.lang === 'vi' ? 'vi' : 'en');
   const t = (en: string, vi: string) => (getLang() === 'vi' ? vi : en);
@@ -138,7 +144,7 @@ const LANGUAGES = [
       if (button instanceof HTMLAnchorElement || 'langLocked' in root.dataset) return;
       root.dataset.lang = lang;
       syncLanguageUI();
-    }),
+    }, { signal }),
   );
   syncLanguageUI();
 
@@ -147,7 +153,7 @@ const LANGUAGES = [
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     localStorage.setItem('theme', next);
-  });
+  }, { signal });
 
   /* Mobile menu ---------------------------------------------------------- */
   const menuButton = document.querySelector<HTMLButtonElement>('.mobile-menu-button');
@@ -157,7 +163,7 @@ const LANGUAGES = [
     const open = mobileMenu.hidden;
     mobileMenu.hidden = !open;
     menuButton.setAttribute('aria-expanded', String(open));
-  });
+  }, { signal });
 
   /* Search --------------------------------------------------------------- */
   const dialog = document.querySelector<HTMLElement>('.search-dialog');
@@ -203,8 +209,8 @@ const LANGUAGES = [
     renderIdle();
   }
 
-  document.querySelectorAll('.search-trigger').forEach(el => el.addEventListener('click', openSearch));
-  document.querySelectorAll('[data-close-search]').forEach(el => el.addEventListener('click', closeSearch));
+  document.querySelectorAll('.search-trigger').forEach(el => el.addEventListener('click', openSearch, { signal }));
+  document.querySelectorAll('[data-close-search]').forEach(el => el.addEventListener('click', closeSearch, { signal }));
 
   function moveActive(step: number) {
     const items = results?.querySelectorAll<HTMLAnchorElement>('.search-result');
@@ -236,9 +242,9 @@ const LANGUAGES = [
     if (event.key === 'Enter') {
       const items = results?.querySelectorAll<HTMLAnchorElement>('.search-result');
       const target = items?.[active < 0 ? 0 : active];
-      if (target) { event.preventDefault(); window.location.href = target.href; }
+      if (target) { event.preventDefault(); target.click(); }
     }
-  });
+  }, { signal });
 
   const escapeHtml = (value: string) =>
     value.replace(/[&<>"']/g, ch =>
@@ -284,7 +290,7 @@ const LANGUAGES = [
       .join('');
     active = 0;
     results.querySelector('.search-result')?.classList.add('active');
-  });
+  }, { signal });
 
   results?.addEventListener('mousemove', event => {
     const item = (event.target as HTMLElement).closest('.search-result');
@@ -292,5 +298,6 @@ const LANGUAGES = [
     const items = Array.from(results.querySelectorAll('.search-result'));
     active = items.indexOf(item);
     items.forEach((el, i) => el.classList.toggle('active', i === active));
+  }, { signal });
   });
 </script>
