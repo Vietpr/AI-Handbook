@@ -33,7 +33,7 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
     <title>{pageTitle}</title>
-    <ClientRouter />
+    <ClientRouter fallback="swap" />
     {alternates && Object.keys(alternates).length > 1 && (
       <>
         {Object.entries(alternates).map(([code, path]) => (
@@ -48,7 +48,8 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
         const applyPreferences = () => {
           const savedTheme = localStorage.getItem('theme');
           const dark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          root.dataset.theme = dark ? 'dark' : 'light';
+          const theme = dark ? 'dark' : 'light';
+          if (root.dataset.theme !== theme) root.dataset.theme = theme;
 
           /* Article pages arrive with their language fixed in the markup. Everywhere
              else the reader's choice wins, English until they press VI themselves;

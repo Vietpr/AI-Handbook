@@ -158,7 +158,16 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
 </BaseLayout>
 
 <script>
+  import { mountDiagrams, prepareDiagrams } from '../lib/diagrams';
+
   let articleController: AbortController | undefined;
+
+  /* Stop observers before Astro changes root attributes or detaches the old
+     article. Waiting until page-load lets theme observers redraw that article. */
+  document.addEventListener('astro:before-swap', (event) => {
+    articleController?.abort();
+    prepareDiagrams(event.newDocument, event.to);
+  });
 
   document.addEventListener('astro:page-load', () => {
   articleController?.abort();
@@ -247,16 +256,10 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
   });
 
   /* Mermaid diagrams ------------------------------------------------------ */
-  /* A ```mermaid fence arrives as a Shiki block tagged data-language. The
-     library is loaded only on pages that have one, and the diagrams are drawn
-     again when the theme flips because Mermaid bakes colours into the SVG. */
+  /* Draw near the viewport and reuse SVGs on return visits. */
   const diagrams = Array.from(prose?.querySelectorAll<HTMLPreElement>('pre[data-language="mermaid"]') ?? []);
   if (diagrams.length) {
-    const sources = diagrams.map(pre => pre.textContent ?? '');
-    diagrams.forEach(pre => { pre.classList.add('mermaid'); pre.removeAttribute('style'); });
-    const root = document.documentElement;
-    const vi = root.lang === 'vi';
-    let mermaid: any;
+    const vi = document.documentElement.lang === 'vi';
 
     /* Lightbox: a copy of the drawn SVG on a backdrop with zoom controls.
        100% is the diagram's natural size (16px labels); it opens at whichever
@@ -372,55 +375,15 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
       close.focus();
     };
 
-    /* A plain script tag rather than a dynamic import(): Vite rewrites
-       import() with a preload helper that is left broken in inlined scripts. */
-    const load = () => new Promise<any>((resolve, reject) => {
-      const w = window as any;
-      if (w.mermaid) return resolve(w.mermaid);
-      const tag = document.createElement('script');
-      tag.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
-      tag.onload = () => (w.mermaid ? resolve(w.mermaid) : reject(new Error('mermaid did not load')));
-      tag.onerror = () => reject(new Error('mermaid script failed to load'));
-      document.head.appendChild(tag);
+    mountDiagrams(diagrams, signal, (pre) => {
+      pre.tabIndex = 0;
+      pre.setAttribute('role', 'button');
+      pre.title = vi ? 'Bấm để phóng to' : 'Click to enlarge';
+      pre.onclick = () => enlarge(pre);
+      pre.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enlarge(pre); }
+      };
     });
-
-    const draw = async () => {
-      if (signal.aborted) return;
-      if (!mermaid) mermaid = await load();
-      if (signal.aborted) return;
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: root.dataset.theme === 'dark' ? 'dark' : 'neutral',
-        fontFamily: getComputedStyle(document.body).fontFamily,
-      });
-      for (const [i, pre] of diagrams.entries()) {
-        try {
-          const { svg } = await mermaid.render(`mermaid-${i}-${Date.now()}`, sources[i]);
-          pre.innerHTML = svg;
-          pre.classList.add('rendered');
-          /* Mermaid caps the SVG at its natural width and lets it shrink to fit.
-             On a phone a wide diagram would shrink past legibility, so keep a
-             floor and let the block scroll sideways instead. */
-          const drawn = pre.querySelector('svg');
-          const natural = parseFloat(drawn?.style.maxWidth || '');
-          if (drawn && natural) drawn.style.minWidth = `${Math.min(natural, 520)}px`;
-          /* Click (or Enter) opens the diagram in a full-screen lightbox. */
-          pre.tabIndex = 0;
-          pre.setAttribute('role', 'button');
-          pre.title = vi ? 'Bấm để phóng to' : 'Click to enlarge';
-          pre.onclick = () => enlarge(pre);
-          pre.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enlarge(pre); } };
-        } catch {
-          pre.textContent = sources[i];
-        }
-      }
-    };
-
-    const report = (error: unknown) => console.warn('Mermaid diagrams were not drawn:', error);
-    draw().catch(report);
-    const themeObserver = new MutationObserver(() => { draw().catch(report); });
-    themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-    signal.addEventListener('abort', () => themeObserver.disconnect(), { once: true });
   }
   });
 </script>
