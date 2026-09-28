@@ -126,7 +126,7 @@ TypeSafe AI's documentation currently describes three main question types:
 
 Several questions can be evaluated in parallel against the same state. Instead of asking the model to invent the entire business process, a developer decomposes the problem into small judgments and combines their results in code.
 
-> “System One Model” is currently TypeSafe AI's name for this model class, not an industry-wide standard.
+> "System One Model" is currently TypeSafe AI's name for this model class, not an industry-wide standard.
 
 ## 4. Why do speed and cost matter?
 
@@ -142,7 +142,7 @@ If every small decision calls a large reasoning model, latency and cost can grow
 
 In workflow evaluations published by TypeSafe AI, the company reports that Jev reached up to **193.6 times faster** and **444.6 times cheaper** on some tested workloads. TypeSafe AI also notes that these figures may represent the high end of real-world gains and that evaluations created by its own team may contain bias.
 
-The responsible interpretation is not “Jev is always hundreds of times faster than every LLM.” It is this:
+The responsible interpretation is not "Jev is always hundreds of times faster than every LLM." It is this:
 
 > For suitably shaped problems, a model specialized for decisions may be substantially more efficient than using a text-generation model at every step.
 

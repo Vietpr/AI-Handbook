@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
@@ -16,8 +17,11 @@ export default defineConfig({
   markdown: {
     /* $…$ and $$…$$ render to KaTeX HTML at build time; the CSS is imported
        by ArticleLayout. Needs @astrojs/markdown-remark for the unified pipeline. */
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [[rehypeKatex, { strict: false }]],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [[rehypeKatex, { strict: false }]],
+      smartypants: false,
+    }),
     shikiConfig: {
       theme: 'github-dark-default',
       wrap: true,

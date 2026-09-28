@@ -126,7 +126,7 @@ Theo tài liệu TypeSafe AI, Jev hiện cung cấp ba dạng câu hỏi chính:
 
 Các câu hỏi có thể được đánh giá song song trên cùng một state. Thay vì yêu cầu mô hình tự viết toàn bộ logic nghiệp vụ, lập trình viên tách bài toán thành những đánh giá nhỏ rồi kết hợp chúng bằng code.
 
-> “System One Model” hiện là cách TypeSafe AI đặt tên cho lớp mô hình của họ, chưa phải một chuẩn chung đã được toàn ngành thống nhất.
+> "System One Model" hiện là cách TypeSafe AI đặt tên cho lớp mô hình của họ, chưa phải một chuẩn chung đã được toàn ngành thống nhất.
 
 ## 4. Vì sao tốc độ và chi phí lại đáng chú ý?
 
@@ -142,7 +142,7 @@ Nếu mỗi quyết định nhỏ đều gọi một reasoning model lớn, đ�
 
 Trong các workflow eval do TypeSafe AI công bố, công ty báo cáo Jev có thể đạt mức nhanh hơn **193,6 lần** và rẻ hơn **444,6 lần** trong một số workload mà họ thử nghiệm. Chính TypeSafe AI cũng lưu ý đây có thể là nhóm kết quả ở đầu cao của lợi ích thực tế và eval do đội ngũ nội bộ xây dựng có thể chứa thiên lệch.
 
-Vì vậy, cách đọc hợp lý không phải là “Jev luôn nhanh hơn mọi LLM hàng trăm lần”, mà là:
+Vì vậy, cách đọc hợp lý không phải là "Jev luôn nhanh hơn mọi LLM hàng trăm lần", mà là:
 
 > Với những bài toán có hình dạng phù hợp, việc dùng một mô hình chuyên cho quyết định có thể hiệu quả hơn đáng kể so với dùng mô hình sinh ngôn ngữ cho mọi bước.
 
