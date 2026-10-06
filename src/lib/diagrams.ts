@@ -36,9 +36,11 @@ function placeholder(pre: HTMLPreElement, vi: boolean) {
 /* Astro restores scroll before page-load. Prepare the incoming document while
    it is still detached, so Back sees the cached diagrams' actual dimensions. */
 export function prepareDiagrams(doc: Document, url: URL) {
+  const diagrams = doc.querySelectorAll<HTMLPreElement>('.prose pre[data-language="mermaid"]');
+  if (!diagrams.length) return;
   const theme: Theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'neutral';
   const font = getComputedStyle(document.body).fontFamily;
-  doc.querySelectorAll<HTMLPreElement>('.prose pre[data-language="mermaid"]').forEach((pre, index) => {
+  diagrams.forEach((pre, index) => {
     const source = pre.textContent ?? '';
     sources.set(pre, source);
     const cached = svgCache.get(cacheKey(url.pathname, index, source, theme, font));

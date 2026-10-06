@@ -70,6 +70,12 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
         applyPreferences();
         if (!window.__handbookPreferencesBound) {
           document.addEventListener('astro:after-swap', applyPreferences);
+          /* Keep client-side navigation while showing the next page immediately.
+             Skipping rejects ready, so observe that expected rejection. */
+          document.addEventListener('astro:before-swap', (event) => {
+            event.viewTransition.ready.catch(() => {});
+            event.viewTransition.skipTransition();
+          });
           window.__handbookPreferencesBound = true;
         }
       })();
