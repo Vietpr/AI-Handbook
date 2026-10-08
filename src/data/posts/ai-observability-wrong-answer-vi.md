@@ -188,3 +188,11 @@ flowchart TD
 Mục tiêu không phải thu một kho log lớn nhất có thể. Mục tiêu là có đủ *bằng chứng an toàn và được nối với nhau* để khi ai đó nói "AI trả lời sai", team có thể xác định vấn đề nằm ở data, retrieval, prompt, model, tool, quyết định của Agent, queue hay hạ tầng.
 
 Đó là lúc một hệ thống AI có tính xác suất trở thành thứ engineer thực sự debug được, thay vì một chiếc hộp đen mà mỗi lần sai lại chỉ biết thử đổi prompt.
+
+## Nguồn tham khảo
+
+- [Generative AI observability - AWS CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/GenAI-observability.html)
+- [Integrations and observability for agents - OpenAI Developers](https://developers.openai.com/api/docs/guides/agents/integrations-observability)
+- [GenAI spans semantic conventions - OpenTelemetry](https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md)
+- [Production monitoring and feedback - AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/gen-ai-lifecycle-operational-excellence/prod-monitoring-feedback.html)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)

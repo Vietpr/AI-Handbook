@@ -133,3 +133,9 @@ We should also separate **what Uber has stated** from **what remains unknown**. 
 Uber did not build a gateway to make a model reason better. It made **model access** a shared capability: applications get a familiar interface, while the platform manages data boundaries, permissions, auditing, and cost.
 
 That is the case study's most useful takeaway. As AI moves from demo to production, many consequential decisions turn out to be familiar platform-engineering questions: **What is every team rebuilding, and should it become shared infrastructure?** For model access at Uber, the answer was yes.
+
+## References
+
+- [Navigating the LLM Landscape: Uber's Innovation with GenAI Gateway - Uber Engineering](https://www.uber.com/us/en/blog/genai-gateway/)
+- [From Predictive to Generative: How Michelangelo Accelerates Uber's AI Journey - Uber Engineering](https://www.uber.com/gb/en/blog/from-predictive-to-generative-ai/)
+- [Solving the Identity Crisis for AI Agents - Uber Engineering](https://www.uber.com/gb/en/blog/solving-the-agent-identity-crisis/)

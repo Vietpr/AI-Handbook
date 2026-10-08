@@ -185,3 +185,9 @@ Kiến trúc không được định nghĩa bởi số Agent trên sơ đồ. N�
 
 > Chỉ thêm một Agent khi nó tạo ra ranh giới có ích, không phải chỉ vì framework cho phép tạo thêm Agent rất dễ.
 
+## Nguồn tham khảo
+
+- [How we built our multi-agent research system - Anthropic](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [Orchestrate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agents/orchestration)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)
+- [A2A: A new era of agent interoperability - Google Developers Blog](https://developers.googleblog.com/a2a-a-new-era-of-agent-interoperability/)

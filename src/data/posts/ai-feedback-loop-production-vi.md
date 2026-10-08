@@ -170,3 +170,10 @@ Ba khái niệm cuối cùng cần phân biệt:
 | Feedback loop | "Biết vậy rồi, phiên bản sau nên thay đổi gì và kiểm chứng ra sao?" |
 
 Một AI product trưởng thành không nhất thiết là model tự học sau mỗi conversation. Nó là một hệ thống nơi production liên tục dạy team điều cần cải thiện, còn team có đủ trace, eval và quy trình release để biến bài học đó thành phiên bản tốt hơn.
+
+## Nguồn tham khảo
+
+- [Evaluation best practices - OpenAI Developers](https://developers.openai.com/api/docs/guides/evaluation-best-practices)
+- [Build an Agent Improvement Loop with Traces, Evals, and Codex - OpenAI Cookbook](https://developers.openai.com/cookbook/examples/agents_sdk/agent_improvement_loop)
+- [Demystifying evals for AI agents - Anthropic](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+- [Observability in Generative AI - Microsoft Learn](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability)

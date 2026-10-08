@@ -170,3 +170,10 @@ Three ideas are worth keeping distinct:
 | Feedback loop | "Given that evidence, what should change next, and how will we validate it?" |
 
 A mature AI product does not necessarily have a model that learns from every conversation. It has a system in which production keeps teaching the team what to improve, and the team has enough traces, evals, and release discipline to turn that lesson into a better version.
+
+## References
+
+- [Evaluation best practices - OpenAI Developers](https://developers.openai.com/api/docs/guides/evaluation-best-practices)
+- [Build an Agent Improvement Loop with Traces, Evals, and Codex - OpenAI Cookbook](https://developers.openai.com/cookbook/examples/agents_sdk/agent_improvement_loop)
+- [Demystifying evals for AI agents - Anthropic](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+- [Observability in Generative AI - Microsoft Learn](https://learn.microsoft.com/en-us/azure/foundry/concepts/observability)

@@ -138,3 +138,9 @@ The useful mental model is:
 
 That makes it both a performance optimization and a resource-management problem. From the application, the flow looks like "user, model, answer". Inside the serving engine, the scheduler, token state, KV blocks, and GPU memory decide how many users can share that model effectively.
 
+## References
+
+- [Efficient Memory Management for Large Language Model Serving with PagedAttention - vLLM paper](https://arxiv.org/abs/2309.06180)
+- [Automatic prefix caching - vLLM](https://docs.vllm.ai/en/latest/design/prefix_caching/)
+- [KV cache system - NVIDIA TensorRT-LLM](https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html)
+- [Engine arguments and scheduler limits - vLLM](https://docs.vllm.ai/en/stable/configuration/engine_args/)

@@ -205,3 +205,9 @@ flowchart TD
 [OpenAI's guidance](https://developers.openai.com/api/docs/guides/evaluation-best-practices) calls for evaluating changes repeatedly and mining production failures for new cases. In the [observability article](../ai-observability-wrong-answer/), we saw how traces make a failed request inspectable. Here, the same request can become a test that catches the failure before the next release.
 
 An eval does not make AI deterministic. It gives a team a measurable way to manage a variable system. A production AI product does not improve because the model silently learns from every conversation. It improves when the team turns observed outcomes into better data, clearer success criteria, safer changes, and tests that continue to run.
+
+## References
+
+- [Evaluation best practices - OpenAI Developers](https://developers.openai.com/api/docs/guides/evaluation-best-practices)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)
+- [Demystifying evals for AI agents - Anthropic](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)

@@ -188,3 +188,11 @@ flowchart TD
 The goal is not to collect the largest possible log archive. It is to have enough *safe, connected evidence* that when someone says "The AI is wrong", the team can identify whether the problem lies in data, retrieval, prompt, model, tool, Agent decision, queue, or infrastructure.
 
 That is when a probabilistic AI system becomes something engineers can actually debug, instead of a black box they keep poking with a new prompt.
+
+## References
+
+- [Generative AI observability - AWS CloudWatch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/GenAI-observability.html)
+- [Integrations and observability for agents - OpenAI Developers](https://developers.openai.com/api/docs/guides/agents/integrations-observability)
+- [GenAI spans semantic conventions - OpenTelemetry](https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md)
+- [Production monitoring and feedback - AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/gen-ai-lifecycle-operational-excellence/prod-monitoring-feedback.html)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)

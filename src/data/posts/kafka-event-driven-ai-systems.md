@@ -198,3 +198,10 @@ Kafka is valuable when direct calls have made components too dependent on one an
 > Kafka does not improve model intelligence. It gives a growing AI system a way to move and react to events without making every component wait on every other component.
 
 Once work spans a request path and several asynchronous consumers, another question becomes urgent: when an answer is late or wrong, was the cause the model, retrieval, a tool, the queue, or a lagging worker? That is why observability eventually becomes part of the architecture, not just a place to look at logs after an incident.
+
+## References
+
+- [Introduction to Apache Kafka - Apache Kafka](https://kafka.apache.org/intro/)
+- [Kafka design - Apache Kafka](https://kafka.apache.org/design/)
+- [Event-driven architecture - Google Cloud](https://docs.cloud.google.com/solutions/event-driven-architecture-pubsub)
+- [Transactional outbox pattern - AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)

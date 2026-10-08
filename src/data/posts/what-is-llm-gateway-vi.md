@@ -206,3 +206,9 @@ Nó không làm model thông minh hơn. Nó giúp việc sử dụng model ở q
 
 Bên dưới gateway còn một lớp mà bài này gần như xem là hộp đen. Khi hàng nghìn request tới model service, chúng phải xếp hàng, được lập lịch, gom batch và chia GPU memory. Đó là nơi những vấn đề như throughput và KV cache bắt đầu xuất hiện, nằm sâu hơn tầng application architecture chúng ta vừa bàn.
 
+## Nguồn tham khảo
+
+- [Create a generative AI gateway - AWS Machine Learning Blog](https://aws.amazon.com/blogs/machine-learning/create-a-generative-ai-gateway-to-allow-secure-and-compliant-consumption-of-foundation-models/)
+- [GenAI gateway capabilities - Microsoft Learn](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities)
+- [Multi-backend AI gateway architecture - Microsoft Learn](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/azure-openai-gateway-multi-backend)
+- [Navigating the LLM Landscape: Uber's Innovation with GenAI Gateway - Uber Engineering](https://www.uber.com/us/en/blog/genai-gateway/)

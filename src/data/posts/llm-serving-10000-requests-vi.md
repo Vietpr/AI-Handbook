@@ -130,3 +130,9 @@ flowchart TD
 Vòng lặp trên sơ đồ thể hiện scheduler liên tục quyết định cách sử dụng những lượt tính toán tiếp theo; request đã hoàn thành sẽ rời hệ thống, không chạy vòng nữa. Thêm replica có thể tăng capacity, nhưng mỗi replica vẫn có compute và memory hữu hạn.
 
 Ý chính là: serving không phải 10.000 model riêng. Đó là quá trình liên tục chia tài nguyên cho nhiều request. Giới hạn tiếp theo nằm trong GPU memory. Mỗi sequence đang chạy cần state để model tiếp tục sinh token mà không phải tính lại toàn bộ lịch sử. [Bài tiếp theo về KV cache](../kv-cache-gpu-memory-llm-serving-vi/) giải thích state đó là gì và vì sao cách quản lý nó ảnh hưởng lớn tới concurrency.
+
+## Nguồn tham khảo
+
+- [Continuous batching from first principles - Hugging Face](https://huggingface.co/blog/continuous_batching)
+- [Optimization and tuning - vLLM](https://docs.vllm.ai/en/stable/configuration/optimization/)
+- [Engine arguments and scheduler limits - vLLM](https://docs.vllm.ai/en/stable/configuration/engine_args/)

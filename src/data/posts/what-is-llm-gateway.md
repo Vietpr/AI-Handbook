@@ -206,3 +206,9 @@ It does not make the model smarter. It makes model use at scale easier to contro
 
 And below the gateway sits another layer we have mostly treated as a black box. When thousands of requests reach a model service, they must be queued, scheduled, batched, and fitted into GPU memory. That is where serving concerns such as throughput and KV cache begin, beyond the application architecture discussed here.
 
+## References
+
+- [Create a generative AI gateway - AWS Machine Learning Blog](https://aws.amazon.com/blogs/machine-learning/create-a-generative-ai-gateway-to-allow-secure-and-compliant-consumption-of-foundation-models/)
+- [GenAI gateway capabilities - Microsoft Learn](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities)
+- [Multi-backend AI gateway architecture - Microsoft Learn](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/azure-openai-gateway-multi-backend)
+- [Navigating the LLM Landscape: Uber's Innovation with GenAI Gateway - Uber Engineering](https://www.uber.com/us/en/blog/genai-gateway/)

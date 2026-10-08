@@ -198,3 +198,10 @@ Kafka hữu ích khi các lời gọi trực tiếp khiến thành phần trong 
 > Kafka không làm model thông minh hơn. Nó cho một hệ thống AI đang lớn lên cách chuyển và phản ứng với event mà không buộc mọi thành phần phải chờ nhau.
 
 Khi công việc trải qua cả request path lẫn nhiều consumer bất đồng bộ, một câu hỏi trở nên cấp thiết: nếu câu trả lời chậm hoặc sai, nguyên nhân nằm ở model, retrieval, tool, queue hay worker bị lag? Đó là lúc observability trở thành một phần của architecture, không còn chỉ là nơi xem log sau sự cố.
+
+## Nguồn tham khảo
+
+- [Introduction to Apache Kafka - Apache Kafka](https://kafka.apache.org/intro/)
+- [Kafka design - Apache Kafka](https://kafka.apache.org/design/)
+- [Event-driven architecture - Google Cloud](https://docs.cloud.google.com/solutions/event-driven-architecture-pubsub)
+- [Transactional outbox pattern - AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)

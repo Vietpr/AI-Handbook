@@ -130,3 +130,9 @@ flowchart TD
 The loop in the diagram means the scheduler repeatedly decides how to use the next execution steps; a completed request exits rather than going around again. More replicas can add capacity, but each replica still has finite compute and memory.
 
 That is the central idea: serving is not 10,000 private models. It is continuous resource allocation across many requests. The next constraint sits in GPU memory. Every active sequence needs state that lets the model continue generating without recomputing its entire history. [The next article on KV cache](../kv-cache-gpu-memory-llm-serving/) explains what that state is and why managing it affects concurrency so strongly.
+
+## References
+
+- [Continuous batching from first principles - Hugging Face](https://huggingface.co/blog/continuous_batching)
+- [Optimization and tuning - vLLM](https://docs.vllm.ai/en/stable/configuration/optimization/)
+- [Engine arguments and scheduler limits - vLLM](https://docs.vllm.ai/en/stable/configuration/engine_args/)

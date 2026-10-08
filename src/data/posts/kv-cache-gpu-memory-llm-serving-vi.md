@@ -138,3 +138,9 @@ Cách nhớ ngắn gọn là:
 
 Vì vậy nó vừa là tối ưu hiệu năng, vừa là bài toán quản lý tài nguyên. Ở phía application, flow trông như "user, model, answer". Trong serving engine, scheduler, token state, KV blocks và GPU memory mới quyết định có thể chia model hiệu quả cho bao nhiêu người.
 
+## Nguồn tham khảo
+
+- [Efficient Memory Management for Large Language Model Serving with PagedAttention - vLLM paper](https://arxiv.org/abs/2309.06180)
+- [Automatic prefix caching - vLLM](https://docs.vllm.ai/en/latest/design/prefix_caching/)
+- [KV cache system - NVIDIA TensorRT-LLM](https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html)
+- [Engine arguments and scheduler limits - vLLM](https://docs.vllm.ai/en/stable/configuration/engine_args/)

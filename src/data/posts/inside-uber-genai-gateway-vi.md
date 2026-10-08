@@ -133,3 +133,9 @@ Cũng cần giữ ranh giới giữa **Uber đã nói** và **chúng ta chưa bi
 Uber không xây Gateway để làm một model reasoning tốt hơn. Họ biến **model access** thành một capability dùng chung: application có interface quen thuộc; platform quản lý ranh giới dữ liệu, quyền, audit và chi phí.
 
 Đó là phần thú vị của case study này. Khi AI đi từ demo sang production, nhiều quyết định quan trọng lại là bài toán platform engineering cũ: **Có thứ gì mọi team đang tự làm lại, và nó có nên trở thành hạ tầng chung không?** Với model access ở Uber, câu trả lời là có.
+
+## Nguồn tham khảo
+
+- [Navigating the LLM Landscape: Uber's Innovation with GenAI Gateway - Uber Engineering](https://www.uber.com/us/en/blog/genai-gateway/)
+- [From Predictive to Generative: How Michelangelo Accelerates Uber's AI Journey - Uber Engineering](https://www.uber.com/gb/en/blog/from-predictive-to-generative-ai/)
+- [Solving the Identity Crisis for AI Agents - Uber Engineering](https://www.uber.com/gb/en/blog/solving-the-agent-identity-crisis/)

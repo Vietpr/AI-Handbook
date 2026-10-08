@@ -206,3 +206,8 @@ flowchart TD
 
 Eval không làm AI trở nên deterministic. Nó cho team một cách đo lường để quản lý hệ thống có tính biến thiên. Sản phẩm AI không tiến bộ vì model âm thầm học từ mọi cuộc hội thoại. Nó tiến bộ khi team biến kết quả đã quan sát thành dữ liệu tốt hơn, tiêu chí success rõ hơn, thay đổi an toàn hơn và những bài test tiếp tục được chạy.
 
+## Nguồn tham khảo
+
+- [Evaluation best practices - OpenAI Developers](https://developers.openai.com/api/docs/guides/evaluation-best-practices)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)
+- [Demystifying evals for AI agents - Anthropic](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)

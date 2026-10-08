@@ -184,3 +184,10 @@ flowchart TD
 The architecture is not defined by how many Agents appear in the diagram. It is defined by **who owns each decision, what context crosses a boundary, which actions are allowed, and how the whole system is evaluated**.
 
 > Use another Agent when it creates a useful boundary, not just because the framework makes spawning one easy.
+
+## References
+
+- [How we built our multi-agent research system - Anthropic](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [Orchestrate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agents/orchestration)
+- [Evaluate agent workflows - OpenAI Developers](https://developers.openai.com/api/docs/guides/agent-evals)
+- [A2A: A new era of agent interoperability - Google Developers Blog](https://developers.googleblog.com/a2a-a-new-era-of-agent-interoperability/)
