@@ -104,56 +104,91 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
             ) : <div></div>}
           </nav>
         )}
+
+        <div class="shortcuts-hint" aria-hidden="true">
+          <span class="lang-en">Shortcuts:</span><span class="lang-vi">Phím tắt:</span>
+          <kbd>[</kbd><kbd>]</kbd> <span class="lang-en">flip</span><span class="lang-vi">chuyển bài</span> •
+          <kbd>Z</kbd> <span class="lang-en">Zen</span><span class="lang-vi">tập trung</span> •
+          <kbd>T</kbd> <span class="lang-en">outline</span><span class="lang-vi">mục lục</span>
+        </div>
       </article>
 
       {showToc && <ArticleToc headings={toc} variant="rail" />}
     </div>
   ) : (
-    <article class="standalone-article shell-reading">
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href={withBase(back)}>
-          <span aria-hidden="true">←</span> <span class="lang-en">{backLabel}</span><span class="lang-vi">{backLabelVi}</span>
-        </a>
-      </nav>
-      <header class="doc-header">
-        {post.data.section === 'Algorithms' && (
-          /* Only Algorithms has two kinds worth telling apart; on Blog the label
-             would say "Concept" on every single post. */
-          <p class="section-label">
-            <span class="lang-en">{post.data.type}</span><span class="lang-vi">{TYPE_VI[post.data.type] ?? post.data.type}</span>
-          </p>
-        )}
-        <h1>{post.data.title}</h1>
-        <p class="doc-dek">{post.data.description}</p>
-        <div class="doc-meta">
-          <span>{date}</span>
-          <TextSize />
-        </div>
-      </header>
-
-      {showToc && <ArticleToc headings={toc} variant="inline" />}
-
-      <div class="prose"><slot /></div>
-
-      {(previous || next) && (
-        <nav class="article-sequence" aria-label="Article sequence">
-          {previous ? (
-            <a href={withBase(`/articles/${previous.id}`)}>
-              <span><span aria-hidden="true">←</span> <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span>
-              <strong>{previous.data.title}</strong>
-            </a>
-          ) : <div></div>}
-          {next ? (
-            <a class="next" href={withBase(`/articles/${next.id}`)}>
-              <span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> <span aria-hidden="true">→</span></span>
-              <strong>{next.data.title}</strong>
-            </a>
-          ) : <div></div>}
+    <div class:list={['standalone-wrapper', { 'standalone-layout shell': showToc, 'shell-reading': !showToc }]}>
+      <article class="standalone-article">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href={withBase(back)}>
+            <span aria-hidden="true">←</span> <span class="lang-en">{backLabel}</span><span class="lang-vi">{backLabelVi}</span>
+          </a>
         </nav>
-      )}
-    </article>
+        <header class="doc-header">
+          {post.data.section === 'Algorithms' && (
+            /* Only Algorithms has two kinds worth telling apart; on Blog the label
+               would say "Concept" on every single post. */
+            <p class="section-label">
+              <span class="lang-en">{post.data.type}</span><span class="lang-vi">{TYPE_VI[post.data.type] ?? post.data.type}</span>
+            </p>
+          )}
+          <h1>{post.data.title}</h1>
+          <p class="doc-dek">{post.data.description}</p>
+          <div class="doc-meta">
+            <span>{date}</span>
+            <TextSize />
+          </div>
+        </header>
+
+        {showToc && <ArticleToc headings={toc} variant="inline" />}
+
+        <div class="prose"><slot /></div>
+
+        {(previous || next) && (
+          <nav class="article-sequence" aria-label="Article sequence">
+            {previous ? (
+              <a href={withBase(`/articles/${previous.id}`)}>
+                <span><span aria-hidden="true">←</span> <span class="lang-en">Previous</span><span class="lang-vi">Bài trước</span></span>
+                <strong>{previous.data.title}</strong>
+              </a>
+            ) : (
+              <a href={withBase(back)} class="sequence-back">
+                <span><span aria-hidden="true">←</span> <span class="lang-en">{backLabel}</span><span class="lang-vi">{backLabelVi}</span></span>
+                <strong><span class="lang-en">All articles</span><span class="lang-vi">Tất cả bài viết</span></strong>
+              </a>
+            )}
+            {next ? (
+              <a class="next" href={withBase(`/articles/${next.id}`)}>
+                <span><span class="lang-en">Next</span><span class="lang-vi">Bài tiếp</span> <span aria-hidden="true">→</span></span>
+                <strong>{next.data.title}</strong>
+              </a>
+            ) : (
+              <a class="next sequence-back" href={withBase(back)}>
+                <span><span class="lang-en">{backLabel}</span><span class="lang-vi">{backLabelVi}</span> <span aria-hidden="true">→</span></span>
+                <strong><span class="lang-en">All articles</span><span class="lang-vi">Tất cả bài viết</span></strong>
+              </a>
+            )}
+          </nav>
+        )}
+
+        <div class="shortcuts-hint" aria-hidden="true">
+          <span class="lang-en">Shortcuts:</span><span class="lang-vi">Phím tắt:</span>
+          <kbd>[</kbd><kbd>]</kbd> <span class="lang-en">flip</span><span class="lang-vi">chuyển bài</span> •
+          <kbd>Z</kbd> <span class="lang-en">Zen</span><span class="lang-vi">tập trung</span> •
+          <kbd>T</kbd> <span class="lang-en">outline</span><span class="lang-vi">mục lục</span>
+        </div>
+      </article>
+
+      {showToc && <ArticleToc headings={toc} variant="rail" />}
+    </div>
   )}
 
+  <div class="zen-exit-pill" id="zen-exit-pill">
+    <button type="button" data-zen-exit>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M10 10H4m6 0V4m0 6L3 3m14 7h6m-6 0V4m0 6l7-7"></path></svg>
+      <span class="lang-en">Exit Zen</span><span class="lang-vi">Thoát Zen</span>
+      <kbd>Esc</kbd>
+    </button>
+  </div>
   <button class="to-top" type="button" aria-label="Back to top" hidden><span aria-hidden="true">↑</span></button>
 </BaseLayout>
 
@@ -231,6 +266,19 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
     wrap.className = 'code-block';
     pre.parentNode?.insertBefore(wrap, pre);
     wrap.appendChild(pre);
+
+    const lang = pre.getAttribute('data-language') ||
+      Array.from(pre.classList).find(c => c.startsWith('language-'))?.replace('language-', '') ||
+      pre.querySelector('code')?.className.match(/language-([\w-]+)/)?.[1] ||
+      '';
+
+    if (lang && !['plaintext', 'text', 'none'].includes(lang.toLowerCase())) {
+      wrap.classList.add('has-badge');
+      const badge = document.createElement('span');
+      badge.className = 'code-lang-badge';
+      badge.textContent = lang.toUpperCase();
+      wrap.appendChild(badge);
+    }
 
     const button = document.createElement('button');
     button.type = 'button';
@@ -385,5 +433,35 @@ const backLabelVi = post.data.section === 'Algorithms' ? 'Thuật toán' : post.
       };
     });
   }
+
+  /* Zen Mode & Keyboard Shortcuts ----------------------------------------- */
+  const root = document.documentElement;
+  const exitPill = document.querySelector<HTMLButtonElement>('[data-zen-exit]');
+  exitPill?.addEventListener('click', () => {
+    delete root.dataset.zenMode;
+  }, { signal });
+
+  document.addEventListener('keydown', (e) => {
+    const target = e.target as HTMLElement;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (['INPUT', 'TEXTAREA'].includes(target?.tagName) || target?.isContentEditable) return;
+    if (document.querySelector('.search-dialog:not([hidden])')) return;
+
+    if (e.key === '[' || e.key === 'p') {
+      const prev = document.querySelector<HTMLAnchorElement>('.article-sequence a:not(.next):not(.sequence-back)');
+      if (prev) prev.click();
+    } else if (e.key === ']' || e.key === 'n') {
+      const next = document.querySelector<HTMLAnchorElement>('.article-sequence a.next:not(.sequence-back)');
+      if (next) next.click();
+    } else if (e.key === 'z' || e.key === 'Z') {
+      if (root.dataset.zenMode === 'true') delete root.dataset.zenMode;
+      else root.dataset.zenMode = 'true';
+    } else if (e.key === 't' || e.key === 'T') {
+      const tocToggle = document.querySelector<HTMLButtonElement>('[data-toc-toggle]');
+      if (tocToggle) tocToggle.click();
+    } else if (e.key === 'Escape') {
+      if (root.dataset.zenMode === 'true') delete root.dataset.zenMode;
+    }
+  }, { signal });
   });
 </script>

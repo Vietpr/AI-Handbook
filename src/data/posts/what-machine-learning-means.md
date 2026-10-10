@@ -89,10 +89,10 @@ The model is one component in a learning system.
 
 When a machine-learning project struggles, inspect five layers:
 
-1. **Task** — what behavior is actually required?
-2. **Data** — what evidence is available and how was it sampled?
-3. **Model** — what patterns can the architecture represent?
-4. **Objective** — what behavior does training reward?
-5. **Evaluation** — how do we know the result generalizes?
+1. **Task** - what behavior is actually required?
+2. **Data** - what evidence is available and how was it sampled?
+3. **Model** - what patterns can the architecture represent?
+4. **Objective** - what behavior does training reward?
+5. **Evaluation** - how do we know the result generalizes?
 
 That frame is more durable than memorizing a list of algorithms.

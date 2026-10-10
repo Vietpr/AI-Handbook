@@ -21,6 +21,17 @@ if (post.data.section === 'Learn' || post.data.section === 'Algorithms') {
   const index = siblings.findIndex(item => item.id === post.id);
   previous = index > 0 ? siblings[index - 1] : undefined;
   next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
+} else if (post.data.section === 'Blog') {
+  /* Walk blog posts in the reader's language, ordered by publication date (newest first). */
+  const allBlogPosts = (await getCollection('posts', ({ data }) => !data.draft && data.section === 'Blog'))
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const siblings = pickFor(post.data.language, allBlogPosts);
+  let index = siblings.findIndex(item => item.id === post.id);
+  if (index === -1 && post.data.translationKey) {
+    index = siblings.findIndex(item => item.data.translationKey === post.data.translationKey);
+  }
+  previous = index > 0 ? siblings[index - 1] : undefined;
+  next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
 }
 ---
 <ArticleLayout post={post} headings={headings} previous={previous} next={next}>

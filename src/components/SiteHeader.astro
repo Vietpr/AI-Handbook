@@ -63,8 +63,9 @@ const LANGUAGES = [
         })}
       </div>
 
-      <button class="icon-button theme-toggle" type="button" aria-label="Toggle color theme">
+      <button class="icon-button theme-toggle" type="button" aria-label="Toggle color theme" title="Color theme (Light / Sepia / Dark)">
         <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"></path></svg>
+        <svg class="icon-sepia" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10M6 14h6"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.6A8.2 8.2 0 0 1 10.4 4a8.2 8.2 0 1 0 9.6 9.6z"></path></svg>
       </button>
 
@@ -96,7 +97,12 @@ const LANGUAGES = [
     <div class="search-input-wrap">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
       <input class="search-input" type="search" placeholder="Search concepts and articles…" autocomplete="off" spellcheck="false" aria-label="Search" />
-      <kbd>ESC</kbd>
+      <button class="search-close-btn" type="button" data-close-search aria-label="Close search" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <div class="search-results" aria-live="polite"></div>
     <div class="search-hints" aria-hidden="true">
@@ -133,6 +139,11 @@ const LANGUAGES = [
     if (searchInput) {
       searchInput.placeholder = t('Search concepts and articles…', 'Tìm khái niệm và bài viết…');
     }
+    const searchCloseBtn = document.querySelector<HTMLButtonElement>('.search-close-btn');
+    if (searchCloseBtn) {
+      searchCloseBtn.setAttribute('aria-label', t('Close search', 'Đóng tìm kiếm'));
+      searchCloseBtn.setAttribute('title', t('Close (Esc)', 'Đóng (Esc)'));
+    }
   }
 
   languageButtons.forEach(button =>
@@ -150,7 +161,9 @@ const LANGUAGES = [
 
   /* Theme ---------------------------------------------------------------- */
   document.querySelector('.theme-toggle')?.addEventListener('click', () => {
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    const cycle: Record<string, string> = { light: 'sepia', sepia: 'dark', dark: 'light' };
+    const current = root.dataset.theme || 'light';
+    const next = cycle[current] || 'dark';
     root.dataset.theme = next;
     localStorage.setItem('theme', next);
   }, { signal });

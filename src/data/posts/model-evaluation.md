@@ -83,11 +83,11 @@ Each arrow needs validation.
 
 A mature AI system usually needs several layers:
 
-1. **Unit/invariant tests** — deterministic rules that must never break.
-2. **Component metrics** — retrieval, classification, extraction, latency.
-3. **End-to-end cases** — realistic user tasks.
-4. **Slice analysis** — language, intent, segment, data source, difficulty.
-5. **Production monitoring** — drift, failures and user outcomes.
+1. **Unit/invariant tests** - deterministic rules that must never break.
+2. **Component metrics** - retrieval, classification, extraction, latency.
+3. **End-to-end cases** - realistic user tasks.
+4. **Slice analysis** - language, intent, segment, data source, difficulty.
+5. **Production monitoring** - drift, failures and user outcomes.
 
 A single score cannot replace this structure.
 

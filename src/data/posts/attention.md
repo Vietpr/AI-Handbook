@@ -25,9 +25,9 @@ The core idea is easier to understand if you ignore the full transformer for a m
 
 From each token representation, the model produces three vectors:
 
-- **query** — what information am I looking for?
-- **key** — what kind of information do I offer?
-- **value** — what information should be passed along if I am selected?
+- **query** - what information am I looking for?
+- **key** - what kind of information do I offer?
+- **value** - what information should be passed along if I am selected?
 
 These are learned linear projections of the same underlying token state.
 

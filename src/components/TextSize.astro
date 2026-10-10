@@ -5,12 +5,21 @@
  * em, so the whole article scales from that one value.
  */
 ---
-<div class="text-size" role="group" aria-label="Text size">
-  <span class="text-size-label">
-    <span class="lang-en">Text size</span><span class="lang-vi">Cỡ chữ</span>
-  </span>
-  <button type="button" data-text-step="-1" aria-label="Decrease text size" title="Smaller text">A<span aria-hidden="true">−</span></button>
-  <button type="button" data-text-step="1" aria-label="Increase text size" title="Larger text">A<span aria-hidden="true">+</span></button>
+<div class="reading-controls" role="group" aria-label="Reading controls">
+  <div class="text-size" role="group" aria-label="Text size">
+    <button type="button" data-text-step="-1" aria-label="Decrease text size" title="Smaller text">A<span aria-hidden="true">−</span></button>
+    <button type="button" data-text-step="1" aria-label="Increase text size" title="Larger text">A<span aria-hidden="true">+</span></button>
+  </div>
+  <button type="button" class="reading-opt-btn font-toggle" data-font-toggle aria-label="Toggle font family" title="Toggle font (Sans / Serif)">
+    <span class="font-sans-active">Serif</span>
+    <span class="font-serif-active">Sans</span>
+  </button>
+  <button type="button" class="reading-opt-btn zen-toggle" data-zen-toggle aria-label="Toggle Zen mode" title="Focus reading mode (Z)">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+    </svg>
+    <span>Zen</span>
+  </button>
 </div>
 
 <script>
@@ -50,5 +59,24 @@
     });
 
     apply(current());
+
+    /* Font toggle -------------------------------------------------------- */
+    document.querySelectorAll<HTMLButtonElement>('[data-font-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const isSerif = root.dataset.font === 'serif';
+        if (isSerif) delete root.dataset.font;
+        else root.dataset.font = 'serif';
+        try { localStorage.setItem('font', isSerif ? 'sans' : 'serif'); } catch {}
+      }, { signal });
+    });
+
+    /* Zen mode toggle ---------------------------------------------------- */
+    document.querySelectorAll<HTMLButtonElement>('[data-zen-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const isZen = root.dataset.zenMode === 'true';
+        if (isZen) delete root.dataset.zenMode;
+        else root.dataset.zenMode = 'true';
+      }, { signal });
+    });
   });
 </script>

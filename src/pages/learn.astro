@@ -33,12 +33,14 @@ const total = countArticles(posts);
           <li>
             <a class="chapter-card" href={withBase(`/learn/${section.id}`)}>
               <div class="chapter-card-head">
+                <span class="start-index">{section.index}</span>
                 <h2><span class="lang-en">{section.title}</span><span class="lang-vi">{section.viTitle}</span></h2>
                 {count > 0 && (
                   <span class="chapter-count">
                     {count} <span class="lang-en">{count === 1 ? 'article' : 'articles'}</span><span class="lang-vi">bài</span>
                   </span>
                 )}
+                <i class="chapter-arrow" aria-hidden="true">→</i>
               </div>
               <p class="chapter-card-body">
                 <span class="lang-en">{section.body}</span><span class="lang-vi">{section.viBody}</span>

@@ -103,4 +103,4 @@ When you see a model component, ask three questions:
 2. How does this operation transform that representation?
 3. What relationship should become easier to express after the transformation?
 
-That framing scales surprisingly far—from linear regression to transformers.
+That framing scales surprisingly far - from linear regression to transformers.

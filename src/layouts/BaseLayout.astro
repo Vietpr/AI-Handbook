@@ -47,8 +47,13 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
         const root = document.documentElement;
         const applyPreferences = () => {
           const savedTheme = localStorage.getItem('theme');
-          const dark = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = dark ? 'dark' : 'light';
+          const theme = savedTheme === 'sepia'
+            ? 'sepia'
+            : savedTheme === 'dark'
+            ? 'dark'
+            : savedTheme === 'light'
+            ? 'light'
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           if (root.dataset.theme !== theme) root.dataset.theme = theme;
 
           /* Article pages arrive with their language fixed in the markup. Everywhere
@@ -65,6 +70,10 @@ const absolute = (path: string) => new URL(path, Astro.site).toString();
           root.dataset.textSize = savedSize >= 1 && savedSize <= 4 ? String(savedSize) : '2';
           if (localStorage.getItem('sidebar') === 'closed') root.dataset.sidebar = 'closed';
           else delete root.dataset.sidebar;
+          if (localStorage.getItem('toc-sidebar') === 'closed') root.dataset.tocSidebar = 'closed';
+          else delete root.dataset.tocSidebar;
+          if (localStorage.getItem('font') === 'serif') root.dataset.font = 'serif';
+          else delete root.dataset.font;
         };
 
         applyPreferences();

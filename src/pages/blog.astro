@@ -26,23 +26,32 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft && data.se
 
   <section class="shell page-section blog-index">
     {posts.length ? (
-      <ul class="note-list">
+      <div class="blog-grid">
         {posts.map(post => (
-          <li class={langClass(post, posts)}>
-            <a class="note-row" href={withBase(`/articles/${post.id}`)}>
-              <time datetime={post.data.pubDate.toISOString()}>
-                {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' })}
-              </time>
-              <span class="note-body">
-                <strong>{post.data.title}</strong>
-                <span>{post.data.description}</span>
-              </span>
-              <em>{post.data.language.toUpperCase()}</em>
-              <i aria-hidden="true">→</i>
+          <article class:list={['blog-card-wrap', langClass(post, posts)]}>
+            <a class="blog-card" href={withBase(`/articles/${post.id}`)}>
+              <div class="blog-card-meta">
+                <time datetime={post.data.pubDate.toISOString()}>
+                  {post.data.pubDate.toLocaleDateString(post.data.language === 'vi' ? 'vi-VN' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </time>
+                <span class="blog-badge">{post.data.language.toUpperCase()}</span>
+              </div>
+              <h2 class="blog-card-title">{post.data.title}</h2>
+              <p class="blog-card-desc">{post.data.description}</p>
+              <div class="blog-card-footer">
+                <span class="blog-read-more">
+                  <span class="lang-en">Read article</span><span class="lang-vi">Đọc bài viết</span>
+                </span>
+                <i aria-hidden="true">→</i>
+              </div>
             </a>
-          </li>
+          </article>
         ))}
-      </ul>
+      </div>
     ) : (
       <div class="notes-empty">
         <h2><span class="lang-en">Nothing here yet.</span><span class="lang-vi">Chưa có bài viết nào.</span></h2>
@@ -56,7 +65,7 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft && data.se
             Trong lúc chờ, phần lớn nội dung đang nằm ở handbook.
           </span>
         </p>
-        <a class="button primary" href={withBase('/learn')}>
+        <a class="button primary" href={withBase('/learn/')}>
           <span class="lang-en">Go to the handbook</span><span class="lang-vi">Tới mục Học AI</span>
           <span aria-hidden="true">→</span>
         </a>

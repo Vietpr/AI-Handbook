@@ -1,6 +1,4 @@
 ---
-import TextSize from './TextSize.astro';
-
 interface Heading { depth: number; slug: string; text: string; }
 interface Props {
   headings: Heading[];
@@ -10,11 +8,22 @@ const { headings, variant = 'rail' } = Astro.props;
 ---
 {variant === 'rail' ? (
   <aside class="doc-toc" aria-label="On this page">
+    <div class="toc-rail">
+      <button class="sidebar-toggle toc-toggle" type="button" data-toc-toggle title="Show outline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+        <span class="sr-only"><span class="lang-en">Show outline</span><span class="lang-vi">Hiện mục lục</span></span>
+      </button>
+    </div>
     <div class="doc-toc-inner">
-      <strong class="doc-toc-title">
-        <span class="lang-en">On this page</span><span class="lang-vi">Mục lục bài viết</span>
-      </strong>
-      <TextSize />
+      <div class="doc-toc-head">
+        <strong class="doc-toc-title">
+          <span class="lang-en">On this page</span><span class="lang-vi">Mục lục bài viết</span>
+        </strong>
+        <button class="sidebar-toggle toc-toggle" type="button" data-toc-toggle title="Hide outline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          <span class="sr-only"><span class="lang-en">Hide outline</span><span class="lang-vi">Ẩn mục lục</span></span>
+        </button>
+      </div>
       <nav>
         {headings.map(h => (
           <a class:list={['toc-link', `toc-h${h.depth}`]} href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
@@ -35,3 +44,23 @@ const { headings, variant = 'rail' } = Astro.props;
     </nav>
   </details>
 )}
+
+<script>
+  let tocController: AbortController | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+    tocController?.abort();
+    tocController = new AbortController();
+    const { signal } = tocController;
+
+    const root = document.documentElement;
+    document.querySelectorAll<HTMLButtonElement>('[data-toc-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const closed = root.dataset.tocSidebar !== 'closed';
+        if (closed) root.dataset.tocSidebar = 'closed';
+        else delete root.dataset.tocSidebar;
+        try { localStorage.setItem('toc-sidebar', closed ? 'closed' : 'open'); } catch {}
+      }, { signal });
+    });
+  });
+</script>
